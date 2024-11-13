@@ -1,0 +1,54 @@
+{
+  "name": "initx-plugin-starter",
+  "type": "module",
+  "version": "0.0.6",
+  "packageManager": "pnpm@9.12.3",
+  "description": "initx plugin starter template",
+  "author": "imba97",
+  "license": "MIT",
+  "homepage": "https://github.com/initx-collective/initx-plugin-starter#readme",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:initx-collective/initx-plugin-starter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/initx-collective/initx-plugin-starter/issues"
+  },
+  "keywords": [
+    "initx",
+    "initx-plugin"
+  ],
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "stub": "unbuild --stub",
+    "build": "unbuild",
+    "release": "bumpp",
+    "lint": "eslint --cache --flag unstable_ts_config",
+    "prepare": "simple-git-hooks"
+  },
+  "dependencies": {
+    "@initx-plugin/core": "^0.0.22",
+    "@initx-plugin/utils": "^0.0.22"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^3.8.0",
+    "@types/node": "^22.9.0",
+    "bumpp": "^9.8.1",
+    "eslint": "^9.14.0",
+    "lint-staged": "^15.2.10",
+    "simple-git-hooks": "^2.11.1",
+    "typescript": "^5.6.3",
+    "unbuild": "^2.0.0"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --cache --flag unstable_ts_config --fix"
+  }
+}
