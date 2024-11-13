@@ -1,29 +1,26 @@
 import { type InitxContext, InitxPlugin } from '@initx-plugin/core'
 import { log } from '@initx-plugin/utils'
 
-interface Store {
-  foo: string
-}
+import { showPluginList } from './list'
 
-export default class StarterPlugin extends InitxPlugin<Store> {
-  defaultStore = {
-    foo: 'bar'
-  }
-
+export default class PluginManagerPlugin extends InitxPlugin {
   matchers = [
     {
-      matching: 'start',
-      description: 'Plugin starter'
+      matching: 'plugin',
+      description: 'Plugin Manager'
     }
   ]
 
-  async handle(ctx: InitxContext<Store>, ...others: string[]) {
-    log.info('initx-plugin-starter is running 🎊')
+  async handle(_ctx: InitxContext, type: string) {
+    switch (type) {
+      case 'list': {
+        showPluginList()
+        break
+      }
 
-    log.info('ctx')
-    console.log(ctx)
-
-    log.info('others')
-    console.log(others)
+      default: {
+        log.warn(`Unknown command: ${type}`)
+      }
+    }
   }
 }
