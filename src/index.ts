@@ -3,6 +3,7 @@ import { log } from '@initx-plugin/utils'
 
 import { addPlugin } from './add'
 import { showPluginList } from './list'
+import { updatePlugin } from './update'
 
 export default class PluginManagerPlugin extends InitxPlugin {
   matchers = [
@@ -23,6 +24,11 @@ export default class PluginManagerPlugin extends InitxPlugin {
 
       case 'add': {
         await addPlugin(name)
+        break
+      }
+
+      case 'update': {
+        await updatePlugin()
         break
       }
 

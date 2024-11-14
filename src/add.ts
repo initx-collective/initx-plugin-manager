@@ -1,13 +1,8 @@
 import { c, inquirer, log } from '@initx-plugin/utils'
-import { dim, gray, greenBright, reset } from 'picocolors'
+import { dim, gray, green, reset } from 'picocolors'
 
-import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, loadingFunction, nameColor, officialName } from './utils'
-
-interface PluginInfo {
-  name: string
-  version: string
-  description: string
-}
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, loadingFunction, nameColor, officialName, searchPlugin } from './utils'
+import type { PluginInfo } from './types'
 
 export async function addPlugin(targetPlugin: string) {
   // search plugin
@@ -36,18 +31,16 @@ export async function addPlugin(targetPlugin: string) {
     needConfirm = false
   }
 
-  const {
-    name,
-    version,
-    description
-  } = availablePlugins[index]
+  const pluginInfo: PluginInfo = {
+    name: availablePlugins[index].name,
+    version: availablePlugins[index].version,
+    description: availablePlugins[index].description
+  }
 
   if (needConfirm) {
-    const confirm = await inquirer.confirm(`Do you want to install ${await displayInfo({
-      name,
-      version,
-      description
-    })} ?`)
+    const confirm = await inquirer.confirm(
+      `Do you want to install ${await displayInfo(pluginInfo)} ?`
+    )
 
     if (!confirm) {
       log.warn('Installation canceled')
@@ -56,39 +49,28 @@ export async function addPlugin(targetPlugin: string) {
   }
 
   // install plugin
-  const installResult = await loadingFunction('Installing plugin', () => installPlugin(name))
+  const installResult = await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
 
   if (!installResult.success) {
-    log.error(`Failed to install plugin ${nameColor(name)}`)
+    log.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)
     // eslint-disable-next-line no-console
     console.log(installResult.content)
     return
   }
 
-  log.success(`Plugin ${nameColor(name)} installed`)
+  log.success(`Plugin ${nameColor(pluginInfo.name)} installed`)
 }
 
 async function searchAvailablePlugins(targetPlugin: string) {
   // search plugin
-  const detectePluginName = [
+  const searchPluginNames = [
     officialName(targetPlugin),
     communityName(targetPlugin)
   ]
 
-  const searchResults = await c('npm', ['search', '--json', ...detectePluginName])
+  const searchResults = await searchPlugin(searchPluginNames)
 
-  let searchResultsJson = []
-
-  try {
-    searchResultsJson = JSON.parse(searchResults.content)
-  }
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  catch (e) {
-    log.error(`Failed to install plugin ${targetPlugin}`)
-    return
-  }
-
-  const availablePlugins = searchResultsJson?.filter(
+  const availablePlugins = searchResults?.filter(
     (plugin: any) => isInitxPlugin(plugin.name) && isCompleteMatchName(targetPlugin, plugin.name)
   )
 
@@ -106,7 +88,7 @@ async function displayInfo({ name, version, description }: PluginInfo) {
     name: nameColor(name),
     version: reset(dim(gray(`@${version}`))),
     description: reset(description),
-    installed: isInstalled ? dim(greenBright(' [already]')) : '\t'
+    installed: isInstalled ? dim(green(' [already]')) : '\t'
   }
 
   return `${display.name}${display.version}${display.installed}\t${display.description}`

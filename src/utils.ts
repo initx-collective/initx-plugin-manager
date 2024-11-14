@@ -1,6 +1,10 @@
 import { fetchPlugins } from '@initx-plugin/core'
+import { c } from '@initx-plugin/utils'
+
 import ora from 'ora'
-import { blueBright, greenBright } from 'picocolors'
+import { blue, green } from 'picocolors'
+
+import type { PluginInfo } from './types'
 
 const installedPluginInfo = {
   once: false,
@@ -20,13 +24,13 @@ export function isCompleteMatchName(targetName: string, searchedName: string) {
 
 export function nameColor(name: string) {
   if (/^@initx-plugin\//.test(name)) {
-    return greenBright(name)
+    return green(name)
   }
 
-  return blueBright(name)
+  return blue(name)
 }
 
-export function loadingFunction(message: string, fn: () => any) {
+export async function loadingFunction<T>(message: string, fn: () => Promise<T>) {
   const spinner = ora(message).start()
 
   return fn().finally(() => {
@@ -50,4 +54,34 @@ export async function getInstalledPluginNames() {
 export async function isInstalledPlugin(name: string) {
   const installedPluginNames = await getInstalledPluginNames()
   return installedPluginNames.includes(name)
+}
+
+export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]> {
+  const plugins: PluginInfo[] = []
+
+  for (const name of pluginNames) {
+    const result = await c('npm', ['search', '--json', name])
+
+    if (!result.success) {
+      continue
+    }
+
+    try {
+      const json = JSON.parse(result.content)
+
+      json.forEach((plugin: Record<string, any>) => {
+        plugins.push({
+          name: plugin.name,
+          version: plugin.version,
+          description: plugin.description
+        })
+      })
+    }
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    catch (e) {
+      return []
+    }
+  }
+
+  return plugins
 }
