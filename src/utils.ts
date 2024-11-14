@@ -70,13 +70,13 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
     try {
       const json = JSON.parse(result.content)
 
-      if (finedNames.includes(json.name)) {
-        continue
-      }
-
-      finedNames.push(json.name)
-
       json.forEach((plugin: Record<string, any>) => {
+        if (finedNames.includes(plugin.name)) {
+          return
+        }
+
+        finedNames.push(plugin.name)
+
         plugins.push({
           name: plugin.name,
           version: plugin.version,
