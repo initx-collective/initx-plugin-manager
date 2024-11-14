@@ -58,6 +58,7 @@ export async function isInstalledPlugin(name: string) {
 
 export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]> {
   const plugins: PluginInfo[] = []
+  const finedNames: string[] = []
 
   for (const name of pluginNames) {
     const result = await c('npm', ['search', '--json', name])
@@ -68,6 +69,12 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
 
     try {
       const json = JSON.parse(result.content)
+
+      if (finedNames.includes(json.name)) {
+        continue
+      }
+
+      finedNames.push(json.name)
 
       json.forEach((plugin: Record<string, any>) => {
         plugins.push({
