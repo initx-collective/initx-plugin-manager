@@ -1,19 +1,12 @@
-import { fetchPlugins } from '@initx-plugin/core'
 import { c, inquirer, log } from '@initx-plugin/utils'
-
 import { dim, gray, greenBright, reset } from 'picocolors'
 
-import { communityName, isCompleteMatchName, isInitxPlugin, loadingFunction, nameColor, officialName } from './utils'
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, loadingFunction, nameColor, officialName } from './utils'
 
 interface PluginInfo {
   name: string
   version: string
   description: string
-}
-
-const installedPluginInfo = {
-  once: false,
-  names: [] as string[]
 }
 
 export async function addPlugin(targetPlugin: string) {
@@ -106,27 +99,14 @@ async function installPlugin(name: string) {
   return c('npm', ['install', '-g', name])
 }
 
-async function getInstalledPluginNames() {
-  if (installedPluginInfo.once) {
-    return installedPluginInfo.names
-  }
-
-  const fetchedPlugins = await fetchPlugins()
-
-  installedPluginInfo.names = fetchedPlugins.map(({ name }) => name)
-  installedPluginInfo.once = true
-
-  return installedPluginInfo.names
-}
-
 async function displayInfo({ name, version, description }: PluginInfo) {
-  const pluginNames = await getInstalledPluginNames()
+  const isInstalled = await isInstalledPlugin(name)
 
   const display = {
     name: nameColor(name),
     version: reset(dim(gray(`@${version}`))),
     description: reset(description),
-    installed: pluginNames.includes(name) ? dim(greenBright(' [already]')) : '\t'
+    installed: isInstalled ? dim(greenBright(' [already]')) : '\t'
   }
 
   return `${display.name}${display.version}${display.installed}\t${display.description}`
