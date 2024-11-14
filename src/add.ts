@@ -1,9 +1,9 @@
 import { fetchPlugins } from '@initx-plugin/core'
 import { c, inquirer, log } from '@initx-plugin/utils'
 
-import { dim, gray, reset } from 'picocolors'
+import { dim, gray, greenBright, reset } from 'picocolors'
 
-import { communityName, existsPlugin, isCompleteMatchName, isInitxPlugin, loadingFunction, nameColor, officialName } from './utils'
+import { communityName, isCompleteMatchName, isInitxPlugin, loadingFunction, nameColor, officialName } from './utils'
 
 interface PluginInfo {
   name: string
@@ -11,15 +11,12 @@ interface PluginInfo {
   description: string
 }
 
+const installedPluginInfo = {
+  once: false,
+  names: [] as string[]
+}
+
 export async function addPlugin(targetPlugin: string) {
-  const plugins = await fetchPlugins()
-  const pluginsName = plugins.map(({ name }) => name)
-
-  if (existsPlugin(pluginsName, targetPlugin)) {
-    log.warn(`Plugin ${targetPlugin} already exists`)
-    return
-  }
-
   // search plugin
   const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
 
@@ -32,13 +29,17 @@ export async function addPlugin(targetPlugin: string) {
   let needConfirm = true
 
   if (availablePlugins.length === 2) {
-    index = await inquirer.select('Which plugin do you want to install?', availablePlugins.map(
-      (plugin: any) => displayInfo({
-        name: plugin.name,
-        version: plugin.version,
-        description: plugin.description
-      })
-    ))
+    const displayContnet: string[] = []
+
+    for (const plugin of availablePlugins) {
+      displayContnet.push(await displayInfo(plugin))
+    }
+
+    index = await inquirer.select(
+      'Which plugin do you want to install?',
+      displayContnet
+    )
+
     needConfirm = false
   }
 
@@ -49,7 +50,7 @@ export async function addPlugin(targetPlugin: string) {
   } = availablePlugins[index]
 
   if (needConfirm) {
-    const confirm = await inquirer.confirm(`Do you want to install ${displayInfo({
+    const confirm = await inquirer.confirm(`Do you want to install ${await displayInfo({
       name,
       version,
       description
@@ -74,7 +75,7 @@ export async function addPlugin(targetPlugin: string) {
   log.success(`Plugin ${nameColor(name)} installed`)
 }
 
-export async function searchAvailablePlugins(targetPlugin: string) {
+async function searchAvailablePlugins(targetPlugin: string) {
   // search plugin
   const detectePluginName = [
     officialName(targetPlugin),
@@ -101,10 +102,32 @@ export async function searchAvailablePlugins(targetPlugin: string) {
   return availablePlugins
 }
 
-export async function installPlugin(name: string) {
+async function installPlugin(name: string) {
   return c('npm', ['install', '-g', name])
 }
 
-function displayInfo({ name, version, description }: PluginInfo) {
-  return `${nameColor(name)}${reset(dim(gray(`@${version}`)))}\t${description}`
+async function getInstalledPluginNames() {
+  if (installedPluginInfo.once) {
+    return installedPluginInfo.names
+  }
+
+  const fetchedPlugins = await fetchPlugins()
+
+  installedPluginInfo.names = fetchedPlugins.map(({ name }) => name)
+  installedPluginInfo.once = true
+
+  return installedPluginInfo.names
+}
+
+async function displayInfo({ name, version, description }: PluginInfo) {
+  const pluginNames = await getInstalledPluginNames()
+
+  const display = {
+    name: nameColor(name),
+    version: reset(dim(gray(`@${version}`))),
+    description: reset(description),
+    installed: pluginNames.includes(name) ? dim(greenBright(' [already]')) : '\t'
+  }
+
+  return `${display.name}${display.version}${display.installed}\t${display.description}`
 }

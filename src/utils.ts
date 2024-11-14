@@ -8,10 +8,6 @@ export function isInitxPlugin(name: string) {
   return /^@initx-plugin\/|^initx-plugin-/.test(name)
 }
 
-export function existsPlugin(pluginsName: string[], name: string) {
-  return pluginsName.some(pluginName => pluginName === officialName(name) || pluginName === communityName(name))
-}
-
 export function isCompleteMatchName(targetName: string, searchedName: string) {
   return officialName(targetName) === searchedName || communityName(targetName) === searchedName
 }
