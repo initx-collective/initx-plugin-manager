@@ -6,11 +6,11 @@ import { fetchPlugins } from '@initx-plugin/core'
 import columnify from 'columnify'
 import { gray } from 'picocolors'
 
-import { nameColor } from './utils'
+import { loadingFunction, nameColor } from './utils'
 import type { PluginInfo } from './types'
 
 export async function showPluginList() {
-  const plugins = await fetchPlugins()
+  const plugins = await loadingFunction('Fetching plugins', fetchPlugins)
 
   const displayTable: PluginInfo[] = []
 
