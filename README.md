@@ -1,6 +1,6 @@
 ## @initx-plugin/manager
 
-`initx` plugin for managing plugins
+`initx` plugin manager
 
 ## Usage
 
