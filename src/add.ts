@@ -20,7 +20,7 @@ export async function addPlugin(targetPlugin: string) {
     const displayContnet: string[] = []
 
     for (const plugin of availablePlugins) {
-      displayContnet.push(await displayInfo(plugin))
+      displayContnet.push(await displayInfo(plugin, true))
     }
 
     index = await inquirer.select(
@@ -81,15 +81,17 @@ async function installPlugin(name: string) {
   return c('npm', ['install', '-g', name])
 }
 
-async function displayInfo({ name, version, description }: PluginInfo) {
+async function displayInfo({ name, version, description }: PluginInfo, hasTab = false) {
   const isInstalled = await isInstalledPlugin(name)
+
+  const spaceChar = hasTab ? '\t' : ' '
 
   const display = {
     name: nameColor(name),
     version: reset(dim(gray(`@${version}`))),
-    description: reset(description),
-    installed: isInstalled ? dim(green(' [already]')) : '\t'
+    description: `${spaceChar}${reset(description)}`,
+    installed: isInstalled ? dim(green(' [already]')) : spaceChar
   }
 
-  return `${display.name}${display.version}${display.installed}\t${display.description}`
+  return `${display.name}${display.version}${display.installed}${display.description}`
 }
