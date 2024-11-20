@@ -1,10 +1,9 @@
+import type { PluginInfo } from './types'
 import { fetchPlugins } from '@initx-plugin/core'
+
 import { c } from '@initx-plugin/utils'
 
-import ora from 'ora'
 import { blue, green } from 'picocolors'
-
-import type { PluginInfo } from './types'
 
 const installedPluginInfo = {
   once: false,
@@ -28,14 +27,6 @@ export function nameColor(name: string) {
   }
 
   return blue(name)
-}
-
-export async function loadingFunction<T>(message: string, fn: () => Promise<T>) {
-  const spinner = ora(message).start()
-
-  return fn().finally(() => {
-    spinner.stop()
-  })
 }
 
 export async function getInstalledPluginNames() {

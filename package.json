@@ -32,15 +32,14 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "@initx-plugin/core": "^0.0.23",
-    "@initx-plugin/utils": "^0.0.23",
+    "@initx-plugin/core": "^0.0.25",
+    "@initx-plugin/utils": "^0.0.25",
     "columnify": "^1.6.0",
     "fs-extra": "^11.2.0",
-    "ora": "^8.1.1",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
-    "@imba97/eslint-config": "^0.0.4",
+    "@imba97/eslint-config": "^0.0.5",
     "@types/columnify": "^1.5.4",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.9.0",

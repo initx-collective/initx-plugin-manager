@@ -1,13 +1,14 @@
+import type { PluginInfo } from './types'
 import path from 'node:path'
-import fs from 'fs-extra'
 
 import { fetchPlugins } from '@initx-plugin/core'
+import { loadingFunction } from '@initx-plugin/utils'
 
 import columnify from 'columnify'
-import { gray } from 'picocolors'
+import fs from 'fs-extra'
 
-import { loadingFunction, nameColor } from './utils'
-import type { PluginInfo } from './types'
+import { gray } from 'picocolors'
+import { nameColor } from './utils'
 
 export async function showPluginList() {
   const plugins = await loadingFunction('Fetching plugins', fetchPlugins)

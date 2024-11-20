@@ -1,8 +1,8 @@
-import { c, inquirer, log } from '@initx-plugin/utils'
-import { dim, gray, green, reset } from 'picocolors'
-
-import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, loadingFunction, nameColor, officialName, searchPlugin } from './utils'
 import type { PluginInfo } from './types'
+import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
+
+import { dim, gray, green, reset } from 'picocolors'
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
 
 export async function addPlugin(targetPlugin: string) {
   // search plugin

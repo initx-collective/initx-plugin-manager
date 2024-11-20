@@ -3,8 +3,8 @@ import { log } from '@initx-plugin/utils'
 
 import { addPlugin } from './add'
 import { showPluginList } from './list'
-import { updatePlugin } from './update'
 import { removePlugin } from './remove'
+import { updatePlugin } from './update'
 
 export default class PluginManagerPlugin extends InitxPlugin {
   matchers = [

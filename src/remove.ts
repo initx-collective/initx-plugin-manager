@@ -1,7 +1,7 @@
 import { fetchPlugins } from '@initx-plugin/core'
-import { c, inquirer, log } from '@initx-plugin/utils'
+import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 
-import { communityName, loadingFunction, nameColor, officialName } from './utils'
+import { communityName, nameColor, officialName } from './utils'
 
 export async function removePlugin(targetName: string) {
   const plugins = await fetchPlugins()

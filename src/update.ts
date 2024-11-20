@@ -1,12 +1,12 @@
+import type { NeedUpdatePlugin } from './types'
 import path from 'node:path'
+
+import { fetchPlugins } from '@initx-plugin/core'
+import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 
 import { dim, gray } from 'picocolors'
-import { fetchPlugins } from '@initx-plugin/core'
-import { c, inquirer, log } from '@initx-plugin/utils'
-
-import { loadingFunction, nameColor, searchPlugin } from './utils'
-import type { NeedUpdatePlugin } from './types'
+import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin() {
   const excludedPlugins = await fetchExcludedPlugins()
