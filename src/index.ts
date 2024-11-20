@@ -19,7 +19,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
 
     switch (type) {
       case 'list': {
-        showPluginList()
+        await showPluginList()
         break
       }
 
