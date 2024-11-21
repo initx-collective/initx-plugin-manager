@@ -8,4 +8,5 @@ export interface NeedUpdatePlugin {
   name: string
   version: string
   target: string
+  isDev: boolean
 }

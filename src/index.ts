@@ -14,7 +14,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
     }
   ]
 
-  async handle(_ctx: InitxContext, type: string, ...others: string[]) {
+  async handle(context: InitxContext, type: string, ...others: string[]) {
     const [name] = others
 
     switch (type) {
@@ -29,7 +29,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
       }
 
       case 'update': {
-        await updatePlugin()
+        await updatePlugin(context.cliOptions)
         break
       }
 
