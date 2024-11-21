@@ -9,10 +9,13 @@ import { dim, gray } from 'picocolors'
 import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin() {
-  const [excludedPlugins, fetchedPlugins] = await loadingFunction('Fetching plugins', () => Promise.all([
-    fetchExcludedPlugins(),
-    fetchPlugins()
-  ]))
+  const [excludedPlugins, fetchedPlugins] = await loadingFunction(
+    'Fetching plugins',
+    () => Promise.all([
+      fetchExcludedPlugins(),
+      fetchPlugins()
+    ])
+  )
 
   const pluginNames: string[] = []
   const pluginRootMap: Record<string, string> = fetchedPlugins.reduce((acc, { name, root }) => {
