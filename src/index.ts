@@ -7,7 +7,7 @@ import { removePlugin } from './remove'
 import { updatePlugin } from './update'
 
 export default class PluginManagerPlugin extends InitxPlugin {
-  matchers = [
+  rules = [
     {
       matching: 'plugin',
       description: 'Plugin Manager'
