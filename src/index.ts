@@ -1,4 +1,4 @@
-import { type InitxContext, InitxPlugin } from '@initx-plugin/core'
+import { type InitxContext, type InitxMatcherRules, InitxPlugin } from '@initx-plugin/core'
 import { log } from '@initx-plugin/utils'
 
 import { addPlugin } from './add'
@@ -7,10 +7,16 @@ import { removePlugin } from './remove'
 import { updatePlugin } from './update'
 
 export default class PluginManagerPlugin extends InitxPlugin {
-  rules = [
+  rules: InitxMatcherRules = [
     {
       matching: 'plugin',
-      description: 'Plugin Manager'
+      description: 'Plugin Manager',
+      optional: [
+        'list',
+        'add',
+        'update',
+        'remove'
+      ]
     }
   ]
 
