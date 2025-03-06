@@ -28,7 +28,7 @@
     "stub": "unbuild --stub",
     "build": "unbuild",
     "release": "bumpp",
-    "lint": "eslint --cache --flag unstable_ts_config",
+    "lint": "eslint --cache",
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
@@ -54,6 +54,6 @@
     "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --cache --flag unstable_ts_config --fix"
+    "*": "eslint --cache --fix"
   }
 }
