@@ -2,7 +2,7 @@
   "name": "@initx-plugin/manager",
   "type": "module",
   "version": "0.0.5",
-  "packageManager": "pnpm@9.15.1",
+  "packageManager": "pnpm@9.15.7",
   "description": "initx plugin manager",
   "author": "imba97",
   "license": "MIT",
@@ -32,23 +32,23 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "@initx-plugin/core": "^0.0.28",
-    "@initx-plugin/utils": "^0.0.28",
+    "@initx-plugin/core": "^0.0.30",
+    "@initx-plugin/utils": "^0.0.30",
     "columnify": "^1.6.0",
-    "fs-extra": "^11.2.0",
+    "fs-extra": "^11.3.0",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
     "@imba97/eslint-config": "^0.0.5",
     "@types/columnify": "^1.5.4",
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.10.2",
-    "bumpp": "^9.9.2",
-    "eslint": "^9.17.0",
-    "lint-staged": "^15.3.0",
+    "@types/node": "^22.13.9",
+    "bumpp": "^10.0.3",
+    "eslint": "^9.21.0",
+    "lint-staged": "^15.4.3",
     "simple-git-hooks": "^2.11.1",
-    "typescript": "^5.7.2",
-    "unbuild": "^3.1.0"
+    "typescript": "^5.8.2",
+    "unbuild": "^3.5.0"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"
