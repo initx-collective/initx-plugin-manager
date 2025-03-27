@@ -9,11 +9,11 @@ importers:
   .:
     dependencies:
       '@initx-plugin/core':
-        specifier: ^0.0.32
-        version: 0.0.32(@types/node@22.13.14)
+        specifier: ^0.0.34
+        version: 0.0.34(@types/node@22.13.14)
       '@initx-plugin/utils':
-        specifier: ^0.0.32
-        version: 0.0.32(@types/node@22.13.14)
+        specifier: ^0.0.34
+        version: 0.0.34(@types/node@22.13.14)
       columnify:
         specifier: ^1.6.0
         version: 1.6.0
@@ -543,11 +543,11 @@ packages:
   '@imba97/eslint-config@0.0.6':
     resolution: {integrity: sha512-OMJ0fNrzgjYv8jUCa8/WLPcbJFE64BBdmdu3H0w2NYUO6DvGVD8MGnd43K1hDXWFSWko68hsHSlIoWiiwjvmVQ==}
 
-  '@initx-plugin/core@0.0.32':
-    resolution: {integrity: sha512-vFX6r1IKitCO7iU3EBxBDVOHwms+6dAb9sTKhfDgfSC21L2r+Jf+ucstTrqFaBhLvW9rTukLxuMMCQSDtwo//g==}
+  '@initx-plugin/core@0.0.34':
+    resolution: {integrity: sha512-W6s1pV9UEXRMno1++3cP2cpHbJxX1WjavfEhd4ZOJKxkHNCqJkvwPSnurBW1qH0z3hQ7f8xZt6NV0Kfxxtnmtw==}
 
-  '@initx-plugin/utils@0.0.32':
-    resolution: {integrity: sha512-+CJXyUnsnz/2kV11G0egg/XYYfL4kT25j3Pk1+cVhNpy3ADygolGMSiltgaOEvO1/Gxf1FvVdPMPeP7CXWDVag==}
+  '@initx-plugin/utils@0.0.34':
+    resolution: {integrity: sha512-D1IvLskzUz+ECAo/DbomNTpwhOwpzX9dr/ARVGAjJWUIc3K5EJOQx/Zrr1L9eDnE5FdjmIBM+Zj5rbKJ2eii3g==}
 
   '@inquirer/checkbox@4.1.2':
     resolution: {integrity: sha512-PL9ixC5YsPXzXhAZFUPmkXGxfgjkdfZdPEPPmt4kFwQ4LBMDG9n/nHXYRGGZSKZJs+d1sGKWgS2GiPzVRKUdtQ==}
@@ -3324,9 +3324,9 @@ snapshots:
       - typescript
       - vitest
 
-  '@initx-plugin/core@0.0.32(@types/node@22.13.14)':
+  '@initx-plugin/core@0.0.34(@types/node@22.13.14)':
     dependencies:
-      '@initx-plugin/utils': 0.0.32(@types/node@22.13.14)
+      '@initx-plugin/utils': 0.0.34(@types/node@22.13.14)
       defu: 6.1.4
       fs-extra: 11.3.0
       importx: 0.5.2
@@ -3336,7 +3336,7 @@ snapshots:
       - '@types/node'
       - supports-color
 
-  '@initx-plugin/utils@0.0.32(@types/node@22.13.14)':
+  '@initx-plugin/utils@0.0.34(@types/node@22.13.14)':
     dependencies:
       inquirer: 12.4.2(@types/node@22.13.14)
       ora: 8.2.0

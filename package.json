@@ -32,8 +32,8 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "@initx-plugin/core": "^0.0.32",
-    "@initx-plugin/utils": "^0.0.32",
+    "@initx-plugin/core": "^0.0.34",
+    "@initx-plugin/utils": "^0.0.34",
     "columnify": "^1.6.0",
     "fs-extra": "^11.3.0",
     "picocolors": "^1.1.1"
