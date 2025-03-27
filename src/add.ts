@@ -1,4 +1,5 @@
 import type { PluginInfo } from './types'
+import { PLUGIN_DIR } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 
 import { dim, gray, green, reset } from 'picocolors'
@@ -78,7 +79,7 @@ async function searchAvailablePlugins(targetPlugin: string) {
 }
 
 async function installPlugin(name: string) {
-  return c('npm', ['install', '-g', name])
+  return c('npm', ['install', '-g', name, '--prefix', PLUGIN_DIR])
 }
 
 async function displayInfo({ name, version, description }: PluginInfo, hasTab = false) {

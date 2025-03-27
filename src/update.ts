@@ -1,7 +1,7 @@
+import type { InitxContext } from '@initx-plugin/core'
 import type { NeedUpdatePlugin } from './types'
 import path from 'node:path'
-
-import { fetchPlugins, type InitxContext } from '@initx-plugin/core'
+import { fetchPlugins } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import fs from 'fs-extra'

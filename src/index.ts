@@ -1,4 +1,5 @@
-import { type InitxContext, type InitxMatcherRules, InitxPlugin } from '@initx-plugin/core'
+import type { InitxContext, InitxMatcherRules } from '@initx-plugin/core'
+import { InitxPlugin } from '@initx-plugin/core'
 import { log } from '@initx-plugin/utils'
 
 import { addPlugin } from './add'
