@@ -1,5 +1,5 @@
 import type { PluginInfo } from './types'
-import { fetchPlugins } from '@initx-plugin/core'
+import { fetchPlugins, PLUGIN_DIR } from '@initx-plugin/core'
 
 import { c } from '@initx-plugin/utils'
 
@@ -82,4 +82,9 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
   }
 
   return plugins
+}
+
+export function withPrefix(commands: string[]) {
+  commands.push('--prefix', PLUGIN_DIR)
+  return commands
 }

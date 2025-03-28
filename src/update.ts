@@ -5,9 +5,8 @@ import { fetchPlugins } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import fs from 'fs-extra'
-
 import { dim, gray } from 'picocolors'
-import { nameColor, searchPlugin } from './utils'
+import { nameColor, searchPlugin, withPrefix } from './utils'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
   const includeDev = options.dev || false
@@ -84,14 +83,23 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
 
   await loadingFunction(
     `Updating ${displayNames}`,
-    () => c('npm', ['install', '-g', ...needUpdatePlugins.map(({ name, target }) => `${name}@${target}`)])
+    () => c(
+      'npm',
+      withPrefix(
+        [
+          'install',
+          '-g',
+          ...needUpdatePlugins.map(({ name, target }) => `${name}@${target}`)
+        ]
+      )
+    )
   )
 
   log.success(`Plugins updated: ${displayNames}`)
 }
 
 async function fetchDevelopmentPlugins() {
-  const npmListResult = await c('npm', ['list', '-g', '--depth=0'])
+  const npmListResult = await c('npm', withPrefix(['list', '-g', '--depth=0']))
 
   // locally installed development plugins
   const pluginNames: string[] = []

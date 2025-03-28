@@ -1,7 +1,6 @@
 import { fetchPlugins } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
-
-import { communityName, nameColor, officialName } from './utils'
+import { communityName, nameColor, officialName, withPrefix } from './utils'
 
 export async function removePlugin(targetName: string) {
   const plugins = await fetchPlugins()
@@ -39,7 +38,7 @@ export async function removePlugin(targetName: string) {
 
   await loadingFunction(
     `Removing ${nameColor(removePlugin.name)}...`,
-    () => c('npm', ['uninstall', '-g', removePlugin.name])
+    () => c('npm', withPrefix(['uninstall', '-g', removePlugin.name]))
   )
 
   log.success(`Removed ${nameColor(removePlugin.name)}`)
