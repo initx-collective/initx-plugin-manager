@@ -2,7 +2,7 @@ import type { PluginInfo } from './types'
 import { cwd } from 'node:process'
 import { withPluginPrefix } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
-import { existsSync, readJSONSync } from 'fs-extra'
+import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { dim, gray, green, reset } from 'picocolors'
 import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
@@ -72,12 +72,12 @@ export async function addPlugin(targetPlugin: string) {
 async function addCurrentDirectoryPlugin() {
   const packageJsonPath = resolve(cwd(), 'package.json')
 
-  if (!existsSync(packageJsonPath)) {
+  if (!fs.existsSync(packageJsonPath)) {
     log.error('Is not a valid plugin directory')
     return
   }
 
-  const packageJson = readJSONSync(packageJsonPath)
+  const packageJson = fs.readJSONSync(packageJsonPath)
 
   if (!packageJson.name || !isInitxPlugin(packageJson.name)) {
     log.error('Is not a valid plugin name')
