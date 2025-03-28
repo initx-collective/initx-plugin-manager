@@ -1,8 +1,6 @@
 import type { PluginInfo } from './types'
-import { fetchPlugins, PLUGIN_DIR } from '@initx-plugin/core'
-
+import { fetchPlugins } from '@initx-plugin/core'
 import { c } from '@initx-plugin/utils'
-
 import { blue, green } from 'picocolors'
 
 const installedPluginInfo = {
@@ -82,9 +80,4 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
   }
 
   return plugins
-}
-
-export function withPrefix(commands: string[]) {
-  commands.push('--prefix', PLUGIN_DIR)
-  return commands
 }

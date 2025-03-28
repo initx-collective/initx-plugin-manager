@@ -1,8 +1,8 @@
 import type { PluginInfo } from './types'
+import { withPluginPrefix } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
-
 import { dim, gray, green, reset } from 'picocolors'
-import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin, withPrefix } from './utils'
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
 
 export async function addPlugin(targetPlugin: string) {
   // search plugin
@@ -78,7 +78,7 @@ async function searchAvailablePlugins(targetPlugin: string) {
 }
 
 async function installPlugin(name: string) {
-  return c('npm', withPrefix(['install', '-g', name]))
+  return c('npm', withPluginPrefix(['install', name, '--silent']))
 }
 
 async function displayInfo({ name, version, description }: PluginInfo, hasTab = false) {

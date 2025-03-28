@@ -1,12 +1,12 @@
 import type { InitxContext } from '@initx-plugin/core'
 import type { NeedUpdatePlugin } from './types'
 import path from 'node:path'
-import { fetchPlugins } from '@initx-plugin/core'
+import { fetchPlugins, withPluginPrefix } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import fs from 'fs-extra'
 import { dim, gray } from 'picocolors'
-import { nameColor, searchPlugin, withPrefix } from './utils'
+import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
   const includeDev = options.dev || false
@@ -85,10 +85,9 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
     `Updating ${displayNames}`,
     () => c(
       'npm',
-      withPrefix(
+      withPluginPrefix(
         [
           'install',
-          '-g',
           ...needUpdatePlugins.map(({ name, target }) => `${name}@${target}`)
         ]
       )
@@ -99,7 +98,7 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
 }
 
 async function fetchDevelopmentPlugins() {
-  const npmListResult = await c('npm', withPrefix(['list', '-g', '--depth=0']))
+  const npmListResult = await c('npm', withPluginPrefix(['list']))
 
   // locally installed development plugins
   const pluginNames: string[] = []
