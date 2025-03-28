@@ -1,10 +1,18 @@
 import type { PluginInfo } from './types'
+import { cwd } from 'node:process'
 import { withPluginPrefix } from '@initx-plugin/core'
 import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { existsSync, readJSONSync } from 'fs-extra'
+import { resolve } from 'pathe'
 import { dim, gray, green, reset } from 'picocolors'
 import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
 
 export async function addPlugin(targetPlugin: string) {
+  if (targetPlugin === '.') {
+    await addCurrentDirectoryPlugin()
+    return
+  }
+
   // search plugin
   const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
 
@@ -59,6 +67,26 @@ export async function addPlugin(targetPlugin: string) {
   }
 
   log.success(`Plugin ${nameColor(pluginInfo.name)} installed`)
+}
+
+async function addCurrentDirectoryPlugin() {
+  const packageJsonPath = resolve(cwd(), 'package.json')
+
+  if (!existsSync(packageJsonPath)) {
+    log.error('Is not a valid plugin directory')
+    return
+  }
+
+  const packageJson = readJSONSync(packageJsonPath)
+
+  if (!packageJson.name || !isInitxPlugin(packageJson.name)) {
+    log.error('Is not a valid plugin name')
+    return
+  }
+
+  await c('npm', withPluginPrefix(['install', '.', '--silent']))
+
+  log.success(`Plugin ${nameColor(packageJson.name)} installed`)
 }
 
 async function searchAvailablePlugins(targetPlugin: string) {
