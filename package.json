@@ -31,9 +31,11 @@
     "lint": "eslint --cache",
     "prepare": "simple-git-hooks"
   },
+  "peerDependencies": {
+    "@initx-plugin/core": "*",
+    "@initx-plugin/utils": "*"
+  },
   "dependencies": {
-    "@initx-plugin/core": "^0.0.35",
-    "@initx-plugin/utils": "^0.0.35",
     "columnify": "^1.6.0",
     "fs-extra": "^11.3.0",
     "pathe": "^2.0.3",
@@ -41,6 +43,8 @@
   },
   "devDependencies": {
     "@imba97/eslint-config": "^0.0.6",
+    "@initx-plugin/core": "*",
+    "@initx-plugin/utils": "*",
     "@types/columnify": "^1.5.4",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.13.14",
