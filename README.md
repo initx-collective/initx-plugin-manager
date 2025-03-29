@@ -5,8 +5,10 @@
 ## Usage
 
 ```bash
-npm i @initx-plugin/manager -g
+npx initx plugin <command>
 ```
+
+This command will automatically install `@initx-plugin/manager` if not already installed.
 
 ### List
 
