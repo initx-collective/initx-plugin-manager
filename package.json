@@ -1,7 +1,7 @@
 {
   "name": "@initx-plugin/manager",
   "type": "module",
-  "version": "0.0.11",
+  "version": "0.1.0",
   "packageManager": "pnpm@10.14.0",
   "description": "initx plugin manager",
   "author": "imba97",
