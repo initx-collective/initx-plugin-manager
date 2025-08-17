@@ -1,61 +1,51 @@
 import type { InitxContext } from '@initx-plugin/core'
 import type { NeedUpdatePlugin } from './types'
-import path from 'node:path'
-import { fetchPlugins, withPluginPrefix } from '@initx-plugin/core'
-import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { pluginSystem } from '@initx-plugin/core'
+import { inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import columnify from 'columnify'
-import fs from 'fs-extra'
+import { pathExists, readJSON } from 'fs-extra'
+import { join } from 'pathe'
 import { dim, gray } from 'picocolors'
 import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
+  await loadingFunction('Updating core packages', updateCorePackages)
+
   const includeDev = options.dev || false
-
-  const [developmentPlugins, fetchedPlugins] = await loadingFunction(
-    'Fetching plugins',
-    () => Promise.all([
-      fetchDevelopmentPlugins(),
-      fetchPlugins()
-    ])
-  )
-
-  const pluginNames: string[] = []
-  const pluginRootMap: Record<string, string> = fetchedPlugins.reduce((acc, { name, root }) => {
-    if (!includeDev && developmentPlugins.includes(name)) {
-      return acc
-    }
-
-    pluginNames.push(name)
-    acc[name] = root
-    return acc
-  }, {} as Record<string, string>)
-
+  const plugins = await loadingFunction('Fetching plugins', () => pluginSystem.list())
+  const filteredPlugins = plugins.filter(plugin => includeDev || !plugin.isLocal)
+  const pluginNames = filteredPlugins.map(plugin => plugin.name)
   const searchPluginsInfo = await loadingFunction('Checking plugins', () => searchPlugin(pluginNames))
 
   const needUpdatePlugins: NeedUpdatePlugin[] = []
 
-  Object.keys(pluginRootMap).forEach((name) => {
-    const packageInfo = fs.readJsonSync(path.join(pluginRootMap[name], 'package.json'))
-    const pluginInfo = searchPluginsInfo.find(plugin => plugin.name === name)
+  filteredPlugins.forEach((plugin) => {
+    const pluginInfo = searchPluginsInfo.find(info => info.name === plugin.name)
+    if (!pluginInfo)
+      return
 
-    if (!pluginInfo) {
+    // local development plugin
+    if (plugin.isLocal && includeDev) {
+      needUpdatePlugins.push({
+        name: plugin.name,
+        version: plugin.version,
+        target: pluginInfo.version,
+        isDev: true
+      })
       return
     }
 
-    const isDevelopmentPlugin = developmentPlugins.includes(name)
-    const condition = isDevelopmentPlugin
-      ? !includeDev
-      : packageInfo.version === pluginInfo.version
-
-    if (condition) {
+    if (plugin.isLocal && !includeDev)
       return
-    }
+
+    if (plugin.version === pluginInfo.version)
+      return
 
     needUpdatePlugins.push({
-      name,
-      version: packageInfo.version,
+      name: plugin.name,
+      version: plugin.version,
       target: pluginInfo.version,
-      isDev: isDevelopmentPlugin
+      isDev: false
     })
   })
 
@@ -73,7 +63,6 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
   }))))
 
   const confirm = await inquirer.confirm('Do you want to update these plugins?')
-
   if (!confirm) {
     log.warn('Update canceled')
     return
@@ -81,34 +70,30 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
 
   const displayNames = needUpdatePlugins.map(({ name, target }) => `${nameColor(name)}${dim(gray(`@${target}`))}`).join(' ')
 
-  await loadingFunction(
-    `Updating ${displayNames}`,
-    () => c(
-      'npm',
-      withPluginPrefix(
-        [
-          'install',
-          ...needUpdatePlugins.map(({ name, target }) => `${name}@${target}`)
-        ]
-      )
-    )
-  )
+  await loadingFunction(`Updating ${displayNames}`, () => Promise.all([
+    ...needUpdatePlugins.map(({ name, target }) => pluginSystem.update(name, target))
+  ]))
 
   log.success(`Plugins updated: ${displayNames}`)
 }
 
-async function fetchDevelopmentPlugins() {
-  const npmListResult = await c('npm', withPluginPrefix(['list']))
+async function updateCorePackages() {
+  const plugins = await searchPlugin([
+    '@initx-plugin/core',
+    '@initx-plugin/utils'
+  ])
 
-  // locally installed development plugins
-  const pluginNames: string[] = []
-  npmListResult.content.split(/\r?\n/).forEach((line) => {
-    const metched = /(?:@initx-plugin\/|initx-plugin-)[^@]+/.exec(line)
+  for (const plugin of plugins) {
+    const targetPath = join('node_modules', plugin.name, 'package.json')
 
-    if (metched && line.includes('->')) {
-      pluginNames.push(metched[0])
+    if (await pathExists(targetPath)) {
+      const target = await readJSON(targetPath, 'utf-8')
+
+      if (target.version === plugin.version) {
+        continue
+      }
+
+      await pluginSystem.update(plugin.name, plugin.version)
     }
-  })
-
-  return pluginNames
+  }
 }

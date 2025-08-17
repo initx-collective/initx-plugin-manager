@@ -1,6 +1,5 @@
 import type { PluginInfo } from './types'
-import { fetchPlugins } from '@initx-plugin/core'
-import { c } from '@initx-plugin/utils'
+import { fetchPlugins, pluginSystem } from '@initx-plugin/core'
 import { blue, green } from 'picocolors'
 
 const installedPluginInfo = {
@@ -50,31 +49,21 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
   const finedNames: string[] = []
 
   for (const name of pluginNames) {
-    const result = await c('npm', ['search', '--json', name])
-
-    if (!result.success) {
-      continue
-    }
+    const result = await pluginSystem.search(name)
 
     try {
-      const json = JSON.parse(result.content)
-
-      json.forEach((plugin: Record<string, any>) => {
+      for (const plugin of result) {
         if (finedNames.includes(plugin.name)) {
-          return
+          continue
         }
 
         finedNames.push(plugin.name)
+        plugins.push(plugin)
 
-        plugins.push({
-          name: plugin.name,
-          version: plugin.version,
-          description: plugin.description
-        })
-      })
+        break
+      }
     }
-    // eslint-disable-next-line unused-imports/no-unused-vars
-    catch (e) {
+    catch {
       return []
     }
   }

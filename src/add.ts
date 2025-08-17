@@ -1,7 +1,7 @@
 import type { PluginInfo } from './types'
 import { cwd } from 'node:process'
-import { withPluginPrefix } from '@initx-plugin/core'
-import { c, inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { pluginSystem } from '@initx-plugin/core'
+import { inquirer, loadingFunction, log } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { dim, gray, green, reset } from 'picocolors'
@@ -57,12 +57,11 @@ export async function addPlugin(targetPlugin: string) {
   }
 
   // install plugin
-  const installResult = await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
-
-  if (!installResult.success) {
+  try {
+    await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
+  }
+  catch {
     log.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)
-    // eslint-disable-next-line no-console
-    console.log(installResult.content)
     return
   }
 
@@ -84,7 +83,7 @@ async function addCurrentDirectoryPlugin() {
     return
   }
 
-  await c('npm', withPluginPrefix(['install', '.', '--silent']))
+  await pluginSystem.install('.')
 
   log.success(`Plugin ${nameColor(packageJson.name)} installed`)
 }
@@ -106,7 +105,7 @@ async function searchAvailablePlugins(targetPlugin: string) {
 }
 
 async function installPlugin(name: string) {
-  return c('npm', withPluginPrefix(['install', name, '--silent']))
+  await pluginSystem.install(name)
 }
 
 async function displayInfo({ name, version, description }: PluginInfo, hasTab = false) {
