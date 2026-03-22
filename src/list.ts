@@ -1,8 +1,7 @@
 import type { PluginInfo } from './types'
 import { fetchPlugins } from '@initx-plugin/core'
-import { loadingFunction } from '@initx-plugin/utils'
+import { loadingFunction, useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
-import { gray } from 'picocolors'
 import { nameColor } from './utils'
 
 export async function showPluginList() {
@@ -13,8 +12,8 @@ export async function showPluginList() {
   plugins.forEach((plugin) => {
     displayTable.push({
       name: nameColor(plugin.name),
-      version: gray(plugin.version),
-      description: gray(plugin.description)
+      version: useColors(plugin.version).gray().toString(),
+      description: useColors(plugin.description).gray().toString()
     })
   })
 

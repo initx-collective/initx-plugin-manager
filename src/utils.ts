@@ -1,6 +1,9 @@
 import type { PluginInfo } from './types'
 import { fetchPlugins, pluginSystem } from '@initx-plugin/core'
-import { blue, green } from 'picocolors'
+import { useColors } from '@initx-plugin/utils'
+
+const INITX_PLUGIN_REGEX = /^@initx-plugin\//
+const PLUGIN_NAME_REGEX = /^@initx-plugin\/|^initx-plugin-/
 
 const installedPluginInfo = {
   once: false,
@@ -11,7 +14,7 @@ export const officialName = (targetName: string) => `@initx-plugin/${targetName}
 export const communityName = (targetName: string) => `initx-plugin-${targetName}`
 
 export function isInitxPlugin(name: string) {
-  return /^@initx-plugin\/|^initx-plugin-/.test(name)
+  return PLUGIN_NAME_REGEX.test(name)
 }
 
 export function isCompleteMatchName(targetName: string, searchedName: string) {
@@ -19,11 +22,11 @@ export function isCompleteMatchName(targetName: string, searchedName: string) {
 }
 
 export function nameColor(name: string) {
-  if (/^@initx-plugin\//.test(name)) {
-    return green(name)
+  if (INITX_PLUGIN_REGEX.test(name)) {
+    return useColors(name).green().toString()
   }
 
-  return blue(name)
+  return useColors(name).blue().toString()
 }
 
 export async function getInstalledPluginNames() {

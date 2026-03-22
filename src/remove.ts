@@ -1,5 +1,5 @@
 import { fetchPlugins, pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
 import { communityName, nameColor, officialName } from './utils'
 
 export async function removePlugin(targetName: string) {
@@ -14,7 +14,7 @@ export async function removePlugin(targetName: string) {
 
   if (removePlugins.length === 0) {
     const displayNames = removePluginNames.map(nameColor).join(' or ')
-    log.warn(`Plugin ${displayNames} is not installed`)
+    logger.warn(`Plugin ${displayNames} is not installed`)
     return
   }
 
@@ -41,5 +41,5 @@ export async function removePlugin(targetName: string) {
     () => pluginSystem.uninstall(removePlugin.name)
   )
 
-  log.success(`Removed ${nameColor(removePlugin.name)}`)
+  logger.success(`Removed ${nameColor(removePlugin.name)}`)
 }

@@ -1,10 +1,9 @@
 import type { PluginInfo } from './types'
 import { cwd } from 'node:process'
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 import { resolve } from 'pathe'
-import { dim, gray, green, reset } from 'picocolors'
 import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
 
 export async function addPlugin(targetPlugin: string) {
@@ -17,7 +16,7 @@ export async function addPlugin(targetPlugin: string) {
   const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
 
   if (availablePlugins.length === 0) {
-    log.error(`Plugin ${nameColor(officialName(targetPlugin))} or ${nameColor(communityName(targetPlugin))} not found`)
+    logger.error(`Plugin ${nameColor(officialName(targetPlugin))} or ${nameColor(communityName(targetPlugin))} not found`)
     return
   }
 
@@ -51,7 +50,7 @@ export async function addPlugin(targetPlugin: string) {
     )
 
     if (!confirm) {
-      log.warn('Installation canceled')
+      logger.warn('Installation canceled')
       return
     }
   }
@@ -61,31 +60,31 @@ export async function addPlugin(targetPlugin: string) {
     await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
   }
   catch {
-    log.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)
+    logger.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)
     return
   }
 
-  log.success(`Plugin ${nameColor(pluginInfo.name)} installed`)
+  logger.success(`Plugin ${nameColor(pluginInfo.name)} installed`)
 }
 
 async function addCurrentDirectoryPlugin() {
   const packageJsonPath = resolve(cwd(), 'package.json')
 
   if (!fs.existsSync(packageJsonPath)) {
-    log.error('Is not a valid plugin directory')
+    logger.error('Is not a valid plugin directory')
     return
   }
 
   const packageJson = fs.readJSONSync(packageJsonPath)
 
   if (!packageJson.name || !isInitxPlugin(packageJson.name)) {
-    log.error('Is not a valid plugin name')
+    logger.error('Is not a valid plugin name')
     return
   }
 
   await pluginSystem.install('.')
 
-  log.success(`Plugin ${nameColor(packageJson.name)} installed`)
+  logger.success(`Plugin ${nameColor(packageJson.name)} installed`)
 }
 
 async function searchAvailablePlugins(targetPlugin: string) {
@@ -115,9 +114,9 @@ async function displayInfo({ name, version, description }: PluginInfo, hasTab = 
 
   const display = {
     name: nameColor(name),
-    version: reset(dim(gray(`@${version}`))),
-    description: `${spaceChar}${reset(description)}`,
-    installed: isInstalled ? dim(green(' [already]')) : spaceChar
+    version: useColors(`@${version}`).dim().gray().toString(),
+    description: `${spaceChar}${description}`,
+    installed: isInstalled ? useColors(' [already]').dim().green().toString() : spaceChar
   }
 
   return `${display.name}${display.version}${display.installed}${display.description}`

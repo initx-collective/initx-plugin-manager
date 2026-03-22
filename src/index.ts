@@ -1,6 +1,6 @@
 import type { InitxContext, InitxMatcherRules } from '@initx-plugin/core'
 import { InitxPlugin } from '@initx-plugin/core'
-import { log } from '@initx-plugin/utils'
+import { logger } from '@initx-plugin/utils'
 
 import { addPlugin } from './add'
 import { showPluginList } from './list'
@@ -46,7 +46,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
       }
 
       default: {
-        log.warn(`Unknown command: ${type}`)
+        logger.warn(`Unknown command: ${type}`)
       }
     }
   }

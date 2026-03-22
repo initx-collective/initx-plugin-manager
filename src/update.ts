@@ -1,11 +1,10 @@
 import type { InitxContext } from '@initx-plugin/core'
 import type { NeedUpdatePlugin } from './types'
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, log } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import { pathExists, readJSON } from 'fs-extra'
 import { join } from 'pathe'
-import { dim, gray } from 'picocolors'
 import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
@@ -50,31 +49,31 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
   })
 
   if (needUpdatePlugins.length === 0) {
-    log.success('All plugins are up to date')
+    logger.success('All plugins are up to date')
     return
   }
 
-  log.info('Need update plugins:')
+  logger.info('Need update plugins:')
   // eslint-disable-next-line no-console
   console.log(columnify(needUpdatePlugins.map(({ name, version, target, isDev }) => ({
     name: nameColor(name),
-    version: dim(gray(`${isDev ? '[dev] ' : ''}${version}`)),
+    version: useColors(`${isDev ? '[dev] ' : ''}${version}`).dim().gray().toString(),
     target
   }))))
 
   const confirm = await inquirer.confirm('Do you want to update these plugins?')
   if (!confirm) {
-    log.warn('Update canceled')
+    logger.warn('Update canceled')
     return
   }
 
-  const displayNames = needUpdatePlugins.map(({ name, target }) => `${nameColor(name)}${dim(gray(`@${target}`))}`).join(' ')
+  const displayNames = needUpdatePlugins.map(({ name, target }) => `${nameColor(name)}${useColors(`@${target}`).dim().gray().toString()}`).join(' ')
 
   await loadingFunction(`Updating ${displayNames}`, () => Promise.all([
     ...needUpdatePlugins.map(({ name, target }) => pluginSystem.update(name, target))
   ]))
 
-  log.success(`Plugins updated: ${displayNames}`)
+  logger.success(`Plugins updated: ${displayNames}`)
 }
 
 async function updateCorePackages() {
@@ -96,4 +95,7 @@ async function updateCorePackages() {
       await pluginSystem.update(plugin.name, plugin.version)
     }
   }
+
+  // Ensure cache is valid after updating core packages
+  await pluginSystem.ensureCacheValid()
 }
