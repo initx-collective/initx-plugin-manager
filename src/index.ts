@@ -31,7 +31,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
       }
 
       case 'add': {
-        await addPlugin(name)
+        await addPlugin(name, context.cliOptions)
         break
       }
 

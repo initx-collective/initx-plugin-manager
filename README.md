@@ -23,11 +23,17 @@ List all installed plugins
 ```bash
 # npx initx plugin add <plugin-name>
 npx initx plugin add git
+
+# Skip search and install directly
+npx initx plugin add @initx-plugin/git --raw
 ```
 
 This command will search and install `@initx-plugin/git` or `initx-plugin-git`
 
 If there are multiple, let the user choose
+
+**Options:**
+- `--raw` - Skip search and install with the exact name provided
 
 ### Update
 

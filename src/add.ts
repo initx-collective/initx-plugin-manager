@@ -6,9 +6,22 @@ import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
 
-export async function addPlugin(targetPlugin: string) {
+export async function addPlugin(targetPlugin: string, cliOptions: Record<string, any> = {}) {
   if (targetPlugin === '.') {
     await addCurrentDirectoryPlugin()
+    return
+  }
+
+  // direct install without search
+  if (cliOptions.raw) {
+    try {
+      await loadingFunction('Installing plugin', () => installPlugin(targetPlugin))
+      logger.success(`Plugin ${nameColor(targetPlugin)} installed`)
+    }
+    catch (error) {
+      logger.error(`Failed to install plugin ${nameColor(targetPlugin)}`)
+      throw error
+    }
     return
   }
 
