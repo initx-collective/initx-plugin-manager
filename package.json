@@ -42,8 +42,8 @@
     "pathe": "^2.0.3"
   },
   "devDependencies": {
-    "@initx-plugin/core": "*",
-    "@initx-plugin/utils": "*",
+    "@initx-plugin/core": "^0.3.2",
+    "@initx-plugin/utils": "^0.3.2",
     "@types/columnify": "^1.5.4",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.5.0",
