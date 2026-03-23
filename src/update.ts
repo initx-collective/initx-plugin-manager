@@ -1,10 +1,8 @@
 import type { InitxContext } from '@initx-plugin/core'
 import type { NeedUpdatePlugin } from './types'
-import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
+import { PLUGIN_DIR, pluginSystem } from '@initx-plugin/core'
+import { c, inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
-import { pathExists, readJSON } from 'fs-extra'
-import { join } from 'pathe'
 import { nameColor, searchPlugin } from './utils'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
@@ -77,25 +75,5 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
 }
 
 async function updateCorePackages() {
-  const plugins = await searchPlugin([
-    '@initx-plugin/core',
-    '@initx-plugin/utils'
-  ])
-
-  for (const plugin of plugins) {
-    const targetPath = join('node_modules', plugin.name, 'package.json')
-
-    if (await pathExists(targetPath)) {
-      const target = await readJSON(targetPath, 'utf-8')
-
-      if (target.version === plugin.version) {
-        continue
-      }
-
-      await pluginSystem.update(plugin.name, plugin.version)
-    }
-  }
-
-  // Ensure cache is valid after updating core packages
-  await pluginSystem.ensureCacheValid()
+  await c('npm', ['install', '@initx-plugin/core', '@initx-plugin/utils', '--prefix', PLUGIN_DIR])
 }
