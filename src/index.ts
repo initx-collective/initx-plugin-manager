@@ -2,7 +2,7 @@ import type { InitxContext, InitxMatcherRules } from '@initx-plugin/core'
 import { InitxPlugin } from '@initx-plugin/core'
 import { logger } from '@initx-plugin/utils'
 
-import { addPlugin } from './add'
+import { addFromTarget } from './add/index'
 import { showPluginList } from './list'
 import { removePlugin } from './remove'
 import { updatePlugin } from './update'
@@ -26,12 +26,12 @@ export default class PluginManagerPlugin extends InitxPlugin {
 
     switch (type) {
       case 'list': {
-        await showPluginList()
+        await showPluginList(context.cliOptions)
         break
       }
 
       case 'add': {
-        await addPlugin(name, context.cliOptions)
+        await addFromTarget(name, context.cliOptions)
         break
       }
 

@@ -2,6 +2,9 @@ shellEmulator: true
 
 trustPolicy: no-downgrade
 
+overrides:
+  stagetty: link:../../Projects/stagetty
+
 onlyBuiltDependencies:
   - esbuild
   - simple-git-hooks

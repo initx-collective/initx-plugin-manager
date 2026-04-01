@@ -36,12 +36,14 @@
     "@initx-plugin/utils": "*"
   },
   "dependencies": {
-    "@antfu/eslint-config": "^7.7.3",
     "columnify": "^1.6.0",
     "fs-extra": "^11.3.4",
-    "pathe": "^2.0.3"
+    "package-manager-detector": "^1.6.0",
+    "pathe": "^2.0.3",
+    "stagetty": "^0.0.0"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^7.7.3",
     "@initx-plugin/core": "^0.3.2",
     "@initx-plugin/utils": "^0.3.2",
     "@types/columnify": "^1.5.4",

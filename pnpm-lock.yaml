@@ -4,23 +4,32 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  stagetty: link:../../Projects/stagetty
+
 importers:
 
   .:
     dependencies:
-      '@antfu/eslint-config':
-        specifier: ^7.7.3
-        version: 7.7.3(@typescript-eslint/rule-tester@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/typescript-estree@8.57.1(typescript@5.9.3))(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.30)(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3)
       columnify:
         specifier: ^1.6.0
         version: 1.6.0
       fs-extra:
         specifier: ^11.3.4
         version: 11.3.4
+      package-manager-detector:
+        specifier: ^1.6.0
+        version: 1.6.0
       pathe:
         specifier: ^2.0.3
         version: 2.0.3
+      stagetty:
+        specifier: link:../stagetty
+        version: link:../stagetty
     devDependencies:
+      '@antfu/eslint-config':
+        specifier: ^7.7.3
+        version: 7.7.3(@typescript-eslint/rule-tester@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/typescript-estree@8.57.1(typescript@5.9.3))(@typescript-eslint/utils@8.57.1(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3))(@vue/compiler-sfc@3.5.30)(eslint@10.1.0(jiti@2.6.1))(typescript@5.9.3)
       '@initx-plugin/core':
         specifier: ^0.3.2
         version: 0.3.2(@types/node@25.5.0)

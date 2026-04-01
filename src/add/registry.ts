@@ -1,18 +1,10 @@
-import type { PluginInfo } from './types'
-import { cwd } from 'node:process'
+import type { PluginInfo } from '../types'
+import process from 'node:process'
 import { pluginSystem } from '@initx-plugin/core'
 import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
-import fs from 'fs-extra'
-import { resolve } from 'pathe'
-import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from './utils'
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from '../utils'
 
-export async function addPlugin(targetPlugin: string, cliOptions: Record<string, any> = {}) {
-  if (targetPlugin === '.') {
-    await addCurrentDirectoryPlugin()
-    return
-  }
-
-  // direct install without search
+export async function addFromRegistry(targetPlugin: string, cliOptions: Record<string, any> = {}) {
   if (cliOptions.raw) {
     try {
       await loadingFunction('Installing plugin', () => installPlugin(targetPlugin))
@@ -20,12 +12,13 @@ export async function addPlugin(targetPlugin: string, cliOptions: Record<string,
     }
     catch (error) {
       logger.error(`Failed to install plugin ${nameColor(targetPlugin)}`)
-      throw error
+      logger.error(error instanceof Error ? error.message : String(error))
+      process.exit(1)
     }
+
     return
   }
 
-  // search plugin
   const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
 
   if (availablePlugins.length === 0) {
@@ -68,7 +61,6 @@ export async function addPlugin(targetPlugin: string, cliOptions: Record<string,
     }
   }
 
-  // install plugin
   try {
     await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
   }
@@ -80,28 +72,7 @@ export async function addPlugin(targetPlugin: string, cliOptions: Record<string,
   logger.success(`Plugin ${nameColor(pluginInfo.name)} installed`)
 }
 
-async function addCurrentDirectoryPlugin() {
-  const packageJsonPath = resolve(cwd(), 'package.json')
-
-  if (!fs.existsSync(packageJsonPath)) {
-    logger.error('Is not a valid plugin directory')
-    return
-  }
-
-  const packageJson = fs.readJSONSync(packageJsonPath)
-
-  if (!packageJson.name || !isInitxPlugin(packageJson.name)) {
-    logger.error('Is not a valid plugin name')
-    return
-  }
-
-  await pluginSystem.install('.')
-
-  logger.success(`Plugin ${nameColor(packageJson.name)} installed`)
-}
-
 async function searchAvailablePlugins(targetPlugin: string) {
-  // search plugin
   const searchPluginNames = [
     officialName(targetPlugin),
     communityName(targetPlugin)
@@ -122,7 +93,6 @@ async function installPlugin(name: string) {
 
 async function displayInfo({ name, version, description }: PluginInfo, hasTab = false) {
   const isInstalled = await isInstalledPlugin(name)
-
   const spaceChar = hasTab ? '\t' : ' '
 
   const display = {
