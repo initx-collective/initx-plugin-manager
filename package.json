@@ -2,7 +2,7 @@
   "name": "@initx-plugin/manager",
   "type": "module",
   "version": "0.3.1",
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.33.0",
   "description": "initx plugin manager",
   "author": "imba97",
   "license": "MIT",
@@ -40,12 +40,12 @@
     "fs-extra": "^11.3.4",
     "package-manager-detector": "^1.6.0",
     "pathe": "^2.0.3",
-    "stagetty": "^0.0.0"
+    "stagetty": "^0.1.0"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^7.7.3",
-    "@initx-plugin/core": "^0.3.2",
-    "@initx-plugin/utils": "^0.3.2",
+    "@antfu/eslint-config": "^8.0.0",
+    "@initx-plugin/core": "^0.3.3",
+    "@initx-plugin/utils": "^0.3.3",
     "@types/columnify": "^1.5.4",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^25.5.0",
@@ -53,7 +53,7 @@
     "eslint": "^10.1.0",
     "nano-staged": "^0.9.0",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "unbuild": "^3.6.1"
   },
   "simple-git-hooks": {
