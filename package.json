@@ -40,7 +40,7 @@
     "fs-extra": "^11.3.4",
     "package-manager-detector": "^1.6.0",
     "pathe": "^2.0.3",
-    "stagetty": "^0.1.0"
+    "stagetty": "^0.1.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.0.0",

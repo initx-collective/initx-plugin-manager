@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  stagetty: link:../../Projects/stagetty
-
 importers:
 
   .:
@@ -24,8 +21,8 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3
       stagetty:
-        specifier: link:../stagetty
-        version: link:../stagetty
+        specifier: ^0.1.1
+        version: 0.1.1
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^8.0.0
@@ -2485,6 +2482,10 @@ packages:
 
   spdx-license-ids@3.0.23:
     resolution: {integrity: sha512-CWLcCCH7VLu13TgOH+r8p1O/Znwhqv/dbb6lqWy67G+pT1kHmeD/+V36AVb/vq8QMIQwVShJ6Ssl5FPh0fuSdw==}
+
+  stagetty@0.1.1:
+    resolution: {integrity: sha512-M8mFJFCXb1+YxdLcTFGtGAEoawGHN55+b4Q8kZI2h9ImE3ZsD3e1nAf7IGhOHHJ+nV7pG4sAXGyXUPNt8lxvYg==}
+    engines: {node: '>=20.12.0'}
 
   stdin-discarder@0.3.1:
     resolution: {integrity: sha512-reExS1kSGoElkextOcPkel4NE99S0BWxjUHQeDFnR8S993JxpPX7KU4MNmO19NXhlJp+8dmdCbKQVNgLJh2teA==}
@@ -5207,6 +5208,8 @@ snapshots:
       spdx-license-ids: 3.0.23
 
   spdx-license-ids@3.0.23: {}
+
+  stagetty@0.1.1: {}
 
   stdin-discarder@0.3.1: {}
 
