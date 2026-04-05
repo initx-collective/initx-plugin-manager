@@ -5,7 +5,7 @@ import { logger } from '@initx-plugin/utils'
 import { addFromTarget } from './add/index'
 import { showPluginList } from './list'
 import { removePlugin } from './remove'
-import { updatePlugin } from './update'
+import { updatePlugin } from './update/index'
 
 export default class PluginManagerPlugin extends InitxPlugin {
   rules: InitxMatcherRules = [
