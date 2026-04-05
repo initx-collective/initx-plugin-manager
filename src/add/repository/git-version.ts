@@ -1,27 +1,23 @@
 import { c } from '@initx-plugin/utils'
 
 const GIT_SEMVER_TAG_REGEX = /^refs\/tags\/(v\d+\.\d+\.\d+)$/
+const GIT_LATEST_TAG_ARGS = ['ls-remote', '--tags', '--refs', '--sort=-v:refname'] as const
 const WHITESPACE_REGEX = /\s+/
 
 interface SemverTagInfo {
   tag: string
-  version: [major: number, minor: number, patch: number]
 }
 
 export async function findLatestSemverTag(gitUrl: string) {
   try {
-    const output = await runGitCommand(['ls-remote', '--tags', '--refs', gitUrl])
-    const tags = output
+    const output = await runGitCommand([...GIT_LATEST_TAG_ARGS, gitUrl])
+    const latestTag = output
       .split(/\r?\n/g)
       .map(parseSemverTag)
       .filter((tag): tag is SemverTagInfo => Boolean(tag))
+      .at(0)
 
-    if (tags.length === 0) {
-      return undefined
-    }
-
-    tags.sort(compareSemverTagDesc)
-    return tags[0]
+    return latestTag
   }
   catch {
     return undefined
@@ -37,7 +33,7 @@ async function runGitCommand(args: string[]) {
   return result.content.trim()
 }
 
-function parseSemverTag(line: string) {
+function parseSemverTag(line: string): SemverTagInfo | undefined {
   const ref = line.trim().split(WHITESPACE_REGEX).at(-1)
   if (!ref) {
     return undefined
@@ -49,21 +45,8 @@ function parseSemverTag(line: string) {
   }
 
   const [, tag] = matched
-  const version = tag.slice(1).split('.').map(Number)
-  if (version.length !== 3 || version.some(Number.isNaN)) {
-    return undefined
-  }
 
   return {
-    tag,
-    version: [version[0], version[1], version[2]]
-  } satisfies SemverTagInfo
-}
-
-function compareSemverTagDesc(a: SemverTagInfo, b: SemverTagInfo) {
-  return (
-    b.version[0] - a.version[0]
-    || b.version[1] - a.version[1]
-    || b.version[2] - a.version[2]
-  )
+    tag
+  }
 }
