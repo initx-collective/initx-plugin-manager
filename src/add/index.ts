@@ -10,7 +10,7 @@ export async function addFromTarget(targetPlugin: string, cliOptions: Record<str
   }
 
   if (isGitUrl(targetPlugin)) {
-    await addFromRepository(targetPlugin)
+    await addFromRepository(targetPlugin, cliOptions)
     return
   }
 

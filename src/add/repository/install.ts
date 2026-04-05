@@ -9,7 +9,13 @@ import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySour
 import { addFromDirectory } from '../local'
 import { findLatestSemverTag } from './git-version'
 
-export async function addFromRepository(gitUrl: string) {
+interface RepositoryInstallOptions {
+  branch?: string
+  commit?: string
+  tag?: string
+}
+
+export async function addFromRepository(gitUrl: string, cliOptions: RepositoryInstallOptions = {}) {
   const sourceDir = await loadingFunction(
     'Preparing repository workspace',
     () => createRepositorySourceDirectory(gitUrl)
@@ -17,23 +23,34 @@ export async function addFromRepository(gitUrl: string) {
   let keepSourceDir = false
 
   try {
-    const latestTag = await loadingFunction(
-      'Resolving repository version',
-      () => findLatestSemverTag(gitUrl)
-    )
-    const cloneArgs = latestTag
-      ? ['clone', '--branch', latestTag.tag, '--depth', '1', gitUrl, sourceDir]
-      : ['clone', '--depth', '1', gitUrl, sourceDir]
+    const checkoutTarget = await resolveCheckoutTarget(gitUrl, cliOptions)
+    const cloneArgs = getCloneArgs(gitUrl, sourceDir, checkoutTarget)
 
-    if (!latestTag) {
+    if (!checkoutTarget) {
       logger.warn('No semver tag matching v*.*.* was found, installing the latest commit from the default branch')
     }
 
     await runStageCommand(
-      latestTag ? `Cloning plugin repository at ${latestTag.tag}` : 'Cloning plugin repository',
+      checkoutTarget ? `Cloning plugin repository at ${checkoutTarget.label}` : 'Cloning plugin repository',
       'git',
       cloneArgs
     )
+
+    if (checkoutTarget?.type === 'commit') {
+      await runStageCommand(
+        `Fetching commit ${checkoutTarget.ref}`,
+        'git',
+        ['fetch', '--depth', '1', 'origin', checkoutTarget.ref],
+        { cwd: sourceDir }
+      )
+
+      await runStageCommand(
+        `Checking out commit ${checkoutTarget.ref}`,
+        'git',
+        ['checkout', checkoutTarget.ref],
+        { cwd: sourceDir }
+      )
+    }
 
     const packageJsonPath = resolve(sourceDir, 'package.json')
     if (!fs.existsSync(packageJsonPath)) {
@@ -112,4 +129,76 @@ export async function addFromRepository(gitUrl: string) {
       await fs.remove(sourceDir)
     }
   }
+}
+
+async function resolveCheckoutTarget(gitUrl: string, cliOptions: RepositoryInstallOptions) {
+  const commit = normalizeRef(cliOptions.commit)
+  const tag = normalizeRef(cliOptions.tag)
+  const branch = normalizeRef(cliOptions.branch)
+
+  const explicitTargets = [
+    commit ? `--commit ${commit}` : undefined,
+    tag ? `--tag ${tag}` : undefined,
+    branch ? `--branch ${branch}` : undefined
+  ].filter((target): target is string => Boolean(target))
+
+  if (explicitTargets.length > 1) {
+    logger.warn(`Multiple git refs were provided, using ${explicitTargets[0]} and ignoring ${explicitTargets.slice(1).join(', ')}`)
+  }
+
+  if (commit) {
+    return {
+      type: 'commit' as const,
+      ref: commit,
+      label: `commit ${commit}`
+    }
+  }
+
+  if (tag) {
+    return {
+      type: 'tag' as const,
+      ref: tag,
+      label: `tag ${tag}`
+    }
+  }
+
+  if (branch) {
+    return {
+      type: 'branch' as const,
+      ref: branch,
+      label: `branch ${branch}`
+    }
+  }
+
+  const latestTag = await loadingFunction(
+    'Resolving repository version',
+    () => findLatestSemverTag(gitUrl)
+  )
+
+  if (!latestTag) {
+    return undefined
+  }
+
+  return {
+    type: 'tag' as const,
+    ref: latestTag.tag,
+    label: `tag ${latestTag.tag}`
+  }
+}
+
+function getCloneArgs(gitUrl: string, sourceDir: string, checkoutTarget: Awaited<ReturnType<typeof resolveCheckoutTarget>>) {
+  if (!checkoutTarget) {
+    return ['clone', '--depth', '1', gitUrl, sourceDir]
+  }
+
+  if (checkoutTarget.type === 'commit') {
+    return ['clone', '--no-checkout', '--depth', '1', gitUrl, sourceDir]
+  }
+
+  return ['clone', '--branch', checkoutTarget.ref, '--depth', '1', gitUrl, sourceDir]
+}
+
+function normalizeRef(value: string | undefined) {
+  const normalized = value?.trim()
+  return normalized || undefined
 }
