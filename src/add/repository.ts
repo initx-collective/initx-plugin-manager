@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
+import { c, inquirer, loadingFunction, logger } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 import { resolveCommand } from 'package-manager-detector/commands'
 import { detect } from 'package-manager-detector/detect'
@@ -9,13 +9,40 @@ import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySour
 import { addFromDirectory } from './local'
 
 const GIT_PROTOCOL_REGEX = /^(?:https?:\/\/|ssh:\/\/|git:\/\/)/i
+const GIT_SEMVER_TAG_REGEX = /^refs\/tags\/(v\d+\.\d+\.\d+)$/
+const WHITESPACE_REGEX = /\s+/
+
+interface SemverTagInfo {
+  ref: string
+  tag: string
+  version: [major: number, minor: number, patch: number]
+}
 
 export async function addFromRepository(gitUrl: string) {
-  const sourceDir = await createRepositorySourceDirectory(gitUrl)
+  const sourceDir = await loadingFunction(
+    'Preparing repository workspace',
+    () => createRepositorySourceDirectory(gitUrl)
+  )
   let keepSourceDir = false
 
   try {
-    await runStageCommand('Cloning plugin repository', 'git', ['clone', '--depth', '1', gitUrl, sourceDir])
+    const latestTag = await loadingFunction(
+      'Resolving repository version',
+      () => findLatestSemverTag(gitUrl)
+    )
+    const cloneArgs = latestTag
+      ? ['clone', '--branch', latestTag.tag, '--depth', '1', gitUrl, sourceDir]
+      : ['clone', '--depth', '1', gitUrl, sourceDir]
+
+    if (!latestTag) {
+      logger.warn('No semver tag matching v*.*.* was found, installing the latest commit from the default branch')
+    }
+
+    await runStageCommand(
+      latestTag ? `Cloning plugin repository at ${latestTag.tag}` : 'Cloning plugin repository',
+      'git',
+      cloneArgs
+    )
 
     const packageJsonPath = resolve(sourceDir, 'package.json')
     if (!fs.existsSync(packageJsonPath)) {
@@ -29,7 +56,10 @@ export async function addFromRepository(gitUrl: string) {
       process.exit(1)
     }
 
-    const detectedPm = await detect({ cwd: sourceDir })
+    const detectedPm = await loadingFunction(
+      'Detecting package manager',
+      () => detect({ cwd: sourceDir })
+    )
     if (!detectedPm) {
       logger.error('Could not detect package manager in the plugin repository')
       process.exit(1)
@@ -91,6 +121,67 @@ export async function addFromRepository(gitUrl: string) {
       await fs.remove(sourceDir)
     }
   }
+}
+
+async function findLatestSemverTag(gitUrl: string) {
+  try {
+    const output = await runGitCommand(['ls-remote', '--tags', '--refs', gitUrl])
+    const tags = output
+      .split(/\r?\n/g)
+      .map(parseSemverTag)
+      .filter((tag): tag is SemverTagInfo => Boolean(tag))
+
+    if (tags.length === 0) {
+      return undefined
+    }
+
+    tags.sort(compareSemverTagDesc)
+    return tags[0]
+  }
+  catch {
+    return undefined
+  }
+}
+
+async function runGitCommand(args: string[]) {
+  const result = await c('git', args)
+  if (!result.success) {
+    throw new Error(result.content)
+  }
+
+  return result.content.trim()
+}
+
+function parseSemverTag(line: string) {
+  const ref = line.trim().split(WHITESPACE_REGEX).at(-1)
+  if (!ref) {
+    return undefined
+  }
+
+  const matched = ref.match(GIT_SEMVER_TAG_REGEX)
+  if (!matched) {
+    return undefined
+  }
+
+  const [, tag] = matched
+  const version = tag.slice(1).split('.').map(Number)
+  if (version.length !== 3 || version.some(Number.isNaN)) {
+    return undefined
+  }
+
+  return {
+    ref,
+    tag,
+    version: [version[0], version[1], version[2]]
+  } satisfies SemverTagInfo
+}
+
+function compareSemverTagDesc(a: SemverTagInfo, b: SemverTagInfo) {
+  return (
+    b.version[0] - a.version[0]
+    || b.version[1] - a.version[1]
+    || b.version[2] - a.version[2]
+  )
 }
 
 export function isGitUrl(value: string) {
