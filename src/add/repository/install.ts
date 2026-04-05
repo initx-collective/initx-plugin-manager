@@ -1,22 +1,13 @@
 import process from 'node:process'
-import { c, inquirer, loadingFunction, logger } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 import { resolveCommand } from 'package-manager-detector/commands'
 import { detect } from 'package-manager-detector/detect'
 import { resolve } from 'pathe'
 import { runStageCommand } from 'stagetty'
-import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySource } from '../utils/repository-source'
-import { addFromDirectory } from './local'
-
-const GIT_PROTOCOL_REGEX = /^(?:https?:\/\/|ssh:\/\/|git:\/\/)/i
-const GIT_SEMVER_TAG_REGEX = /^refs\/tags\/(v\d+\.\d+\.\d+)$/
-const WHITESPACE_REGEX = /\s+/
-
-interface SemverTagInfo {
-  ref: string
-  tag: string
-  version: [major: number, minor: number, patch: number]
-}
+import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySource } from '../../utils/repository-source'
+import { addFromDirectory } from '../local'
+import { findLatestSemverTag } from './git-version'
 
 export async function addFromRepository(gitUrl: string) {
   const sourceDir = await loadingFunction(
@@ -120,96 +111,5 @@ export async function addFromRepository(gitUrl: string) {
     if (!keepSourceDir && !tracked) {
       await fs.remove(sourceDir)
     }
-  }
-}
-
-async function findLatestSemverTag(gitUrl: string) {
-  try {
-    const output = await runGitCommand(['ls-remote', '--tags', '--refs', gitUrl])
-    const tags = output
-      .split(/\r?\n/g)
-      .map(parseSemverTag)
-      .filter((tag): tag is SemverTagInfo => Boolean(tag))
-
-    if (tags.length === 0) {
-      return undefined
-    }
-
-    tags.sort(compareSemverTagDesc)
-    return tags[0]
-  }
-  catch {
-    return undefined
-  }
-}
-
-async function runGitCommand(args: string[]) {
-  const result = await c('git', args)
-  if (!result.success) {
-    throw new Error(result.content)
-  }
-
-  return result.content.trim()
-}
-
-function parseSemverTag(line: string) {
-  const ref = line.trim().split(WHITESPACE_REGEX).at(-1)
-  if (!ref) {
-    return undefined
-  }
-
-  const matched = ref.match(GIT_SEMVER_TAG_REGEX)
-  if (!matched) {
-    return undefined
-  }
-
-  const [, tag] = matched
-  const version = tag.slice(1).split('.').map(Number)
-  if (version.length !== 3 || version.some(Number.isNaN)) {
-    return undefined
-  }
-
-  return {
-    ref,
-    tag,
-    version: [version[0], version[1], version[2]]
-  } satisfies SemverTagInfo
-}
-
-function compareSemverTagDesc(a: SemverTagInfo, b: SemverTagInfo) {
-  return (
-    b.version[0] - a.version[0]
-    || b.version[1] - a.version[1]
-    || b.version[2] - a.version[2]
-  )
-}
-
-export function isGitUrl(value: string) {
-  const candidate = value.trim()
-
-  if (!candidate) {
-    return false
-  }
-
-  if (candidate.startsWith('git@')) {
-    return candidate.includes(':') && candidate.includes('/')
-  }
-
-  const protocolCandidate = candidate.startsWith('git+https://')
-    ? candidate.slice(4)
-    : candidate.startsWith('git+http://')
-      ? candidate.slice(4)
-      : candidate
-
-  if (!GIT_PROTOCOL_REGEX.test(protocolCandidate)) {
-    return false
-  }
-
-  try {
-    const parsed = new URL(protocolCandidate)
-    return Boolean(parsed.hostname && parsed.pathname && parsed.pathname !== '/')
-  }
-  catch {
-    return false
   }
 }
