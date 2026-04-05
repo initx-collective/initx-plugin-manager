@@ -1,3 +1,5 @@
+import type { AddSource } from './add/local'
+
 export interface PluginInfo {
   name: string
   version: string
@@ -6,7 +8,7 @@ export interface PluginInfo {
 
 export interface NeedUpdatePlugin {
   name: string
+  source: AddSource
   version: string
   target: string
-  isDev: boolean
 }

@@ -2,26 +2,12 @@ import type { PluginInfo } from './types'
 import { fetchPlugins } from '@initx-plugin/core'
 import { loadingFunction, useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
+import { AddSource } from './add/local'
 import { nameColor } from './utils'
-import { hasLocalSource } from './utils/local-source'
-import { hasRepositorySourceByPlugin } from './utils/repository-source'
-
-type PluginSource = 'registry' | 'local' | 'repository'
+import { detectPluginSource } from './utils/plugin-source'
 
 interface DisplayPluginInfo extends PluginInfo {
   source?: string
-}
-
-async function detectPluginSource(pluginName: string): Promise<PluginSource> {
-  if (await hasRepositorySourceByPlugin(pluginName)) {
-    return 'repository'
-  }
-
-  if (await hasLocalSource(pluginName)) {
-    return 'local'
-  }
-
-  return 'registry'
 }
 
 export async function showPluginList(cliOptions: Record<string, any> = {}) {
@@ -38,7 +24,7 @@ export async function showPluginList(cliOptions: Record<string, any> = {}) {
       version: useColors(plugin.version).gray().toString(),
       description: useColors(plugin.description).gray().toString(),
       ...(showDetail
-        ? { source: useColors(source!).gray().toString() }
+        ? { source: useColors(source ?? AddSource.Registry).gray().toString() }
         : {})
     })
   }

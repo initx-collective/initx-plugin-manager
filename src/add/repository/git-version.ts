@@ -8,9 +8,13 @@ interface SemverTagInfo {
   tag: string
 }
 
-export async function findLatestSemverTag(gitUrl: string) {
+interface GitCommandOptions {
+  cwd?: string
+}
+
+export async function findLatestSemverTag(gitTarget: string, options: GitCommandOptions = {}) {
   try {
-    const output = await runGitCommand([...GIT_LATEST_TAG_ARGS, gitUrl])
+    const output = await runGitCommand([...GIT_LATEST_TAG_ARGS, gitTarget], options)
     const latestTag = output
       .split(/\r?\n/g)
       .map(parseSemverTag)
@@ -24,8 +28,8 @@ export async function findLatestSemverTag(gitUrl: string) {
   }
 }
 
-async function runGitCommand(args: string[]) {
-  const result = await c('git', args)
+async function runGitCommand(args: string[], options: GitCommandOptions = {}) {
+  const result = await c('git', args, options)
   if (!result.success) {
     throw new Error(result.content)
   }

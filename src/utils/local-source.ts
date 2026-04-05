@@ -26,9 +26,13 @@ export async function setLocalSource(pluginName: string, sourceDirectory: string
   await writeLocalSourceMap(map)
 }
 
-export async function hasLocalSource(pluginName: string) {
+export async function getLocalSource(pluginName: string) {
   const map = await readLocalSourceMap()
-  return Boolean(map[pluginName])
+  return map[pluginName]
+}
+
+export async function hasLocalSource(pluginName: string) {
+  return Boolean(await getLocalSource(pluginName))
 }
 
 export async function consumeLocalSource(pluginName: string) {

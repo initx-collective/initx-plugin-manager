@@ -70,6 +70,11 @@ export async function setRepositorySource(pluginName: string, sourceDirectory: s
   return previousSource
 }
 
+export async function getRepositorySource(pluginName: string) {
+  const map = await readRepositorySourceMap()
+  return map[pluginName]
+}
+
 export async function consumeRepositorySource(pluginName: string) {
   const map = await readRepositorySourceMap()
   const sourceDirectory = map[pluginName]
@@ -89,6 +94,5 @@ export async function hasRepositorySource(sourceDirectory: string) {
 }
 
 export async function hasRepositorySourceByPlugin(pluginName: string) {
-  const map = await readRepositorySourceMap()
-  return Boolean(map[pluginName])
+  return Boolean(await getRepositorySource(pluginName))
 }
