@@ -6,7 +6,7 @@ import { detect } from 'package-manager-detector/detect'
 import { resolve } from 'pathe'
 import { runStageCommand } from 'stagetty'
 import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySource } from '../../utils/repository-source'
-import { addFromDirectory } from '../local'
+import { addFromDirectory, AddSource } from '../local'
 import { findLatestSemverTag } from './git-version'
 
 interface RepositoryInstallOptions {
@@ -99,7 +99,7 @@ export async function addFromRepository(gitUrl: string, cliOptions: RepositoryIn
       { cwd: sourceDir }
     )
 
-    const pluginName = await loadingFunction('Registering plugin', () => addFromDirectory(sourceDir, 'repository'))
+    const pluginName = await loadingFunction('Registering plugin', () => addFromDirectory(sourceDir, AddSource.Repository))
     if (!pluginName) {
       logger.error('Failed to register plugin from repository directory')
       process.exit(1)

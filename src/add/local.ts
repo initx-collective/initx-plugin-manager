@@ -1,12 +1,16 @@
 import { PLUGIN_DIR, pluginSystem } from '@initx-plugin/core'
-import { logger } from '@initx-plugin/utils'
+import { loadingFunction, logger } from '@initx-plugin/utils'
 import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { isInitxPlugin, nameColor } from '../utils'
 import { consumeLocalSource, setLocalSource } from '../utils/local-source'
 import { consumeRepositorySource } from '../utils/repository-source'
 
-type AddSource = 'local' | 'repository' | 'registry'
+export enum AddSource {
+  Local = 'local',
+  Registry = 'registry',
+  Repository = 'repository'
+}
 
 const BACKSLASH_REGEX = /\\/g
 
@@ -56,7 +60,7 @@ async function normalizePluginCacheAfterDirectoryInstall(directory: string, pack
   await fs.writeJSON(cachePath, cache)
 }
 
-export async function addFromDirectory(directory: string, source: AddSource = 'local') {
+export async function addFromDirectory(directory: string, source: AddSource = AddSource.Local) {
   const packageJsonPath = resolve(directory, 'package.json')
 
   if (!fs.existsSync(packageJsonPath)) {
@@ -71,10 +75,10 @@ export async function addFromDirectory(directory: string, source: AddSource = 'l
     return undefined
   }
 
-  await pluginSystem.install(directory)
+  await loadingFunction('Installing plugin', () => pluginSystem.install(directory))
   await normalizePluginCacheAfterDirectoryInstall(directory, packageJson.name)
 
-  if (source === 'local') {
+  if (source === AddSource.Local) {
     const previousRepositoryDirectory = await consumeRepositorySource(packageJson.name)
     if (previousRepositoryDirectory) {
       await fs.remove(previousRepositoryDirectory)
