@@ -36,6 +36,7 @@
     "@initx-plugin/utils": "*"
   },
   "dependencies": {
+    "@inquirer/prompts": "^8.3.2",
     "columnify": "^1.6.0",
     "fs-extra": "^11.3.4",
     "package-manager-detector": "^1.6.0",

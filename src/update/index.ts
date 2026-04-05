@@ -1,7 +1,7 @@
 import type { InitxContext } from '@initx-plugin/core'
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
-import columnify from 'columnify'
+import { loadingFunction, logger, useColors } from '@initx-plugin/utils'
+import { checkbox } from '@inquirer/prompts'
 import { nameColor } from '../utils'
 import { applyPluginUpdates } from './apply'
 import { collectNeedUpdatePlugins, getLocalPluginNames } from './collect'
@@ -31,23 +31,28 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
     logger.info(`Skipped local plugins: ${localPluginNames.map(nameColor).join(' ')}`)
   }
 
-  logger.info('Need update plugins:')
-  // eslint-disable-next-line no-console
-  console.log(columnify(needUpdatePlugins.map(({ name, source, version, target }) => ({
-    name: nameColor(name),
-    source: useColors(source).gray().toString(),
-    version: useColors(version).dim().gray().toString(),
-    target
-  }))))
-
-  const confirm = await inquirer.confirm('Do you want to update these plugins?')
-  if (!confirm) {
+  const selectedUpdates = await selectUpdates(needUpdatePlugins)
+  if (selectedUpdates.length === 0) {
     logger.warn('Update canceled')
     return
   }
 
-  await applyPluginUpdates(needUpdatePlugins)
+  await applyPluginUpdates(selectedUpdates)
 
-  const displayNames = needUpdatePlugins.map(({ name, target }) => `${nameColor(name)}${useColors(`@${target}`).dim().gray().toString()}`).join(' ')
+  const displayNames = selectedUpdates.map(({ name, target }) => `${nameColor(name)}${useColors(`@${target}`).dim().gray().toString()}`).join(' ')
   logger.success(`Plugins updated: ${displayNames}`)
+}
+
+async function selectUpdates(needUpdatePlugins: Awaited<ReturnType<typeof collectNeedUpdatePlugins>>) {
+  const selectedNames = await checkbox({
+    message: 'Select plugins to update',
+    choices: needUpdatePlugins.map(({ name, source, version, target }) => ({
+      name: `${name} (${source}) ${version} -> ${target}`,
+      label: `${name} ${useColors(`(${source})`).gray().toString()} ${useColors(version).dim().gray().toString()} -> ${target}`,
+      value: name,
+      checked: true
+    }))
+  })
+
+  return needUpdatePlugins.filter(({ name }) => selectedNames.includes(name))
 }

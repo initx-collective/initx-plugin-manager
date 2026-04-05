@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@inquirer/prompts':
+        specifier: ^8.3.2
+        version: 8.3.2(@types/node@25.5.0)
       columnify:
         specifier: ^1.6.0
         version: 1.6.0
