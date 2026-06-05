@@ -18,10 +18,19 @@ export default class PluginManagerPlugin extends InitxPlugin {
         'update',
         'remove'
       ]
+    },
+    {
+      matching: 'plugins',
+      description: 'List installed plugins'
     }
   ]
 
-  async handle(context: InitxContext, type: string, ...others: string[]) {
+  async handle(context: InitxContext, type?: string, ...others: string[]) {
+    if (context.key === 'plugins') {
+      await showPluginList(context.cliOptions)
+      return
+    }
+
     const [name] = others
 
     switch (type) {
