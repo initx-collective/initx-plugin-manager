@@ -54,14 +54,14 @@ async function collectRegistryUpdates(plugins: InstalledPlugins): Promise<NeedUp
 
   return plugins.flatMap((plugin) => {
     const pluginInfo = searchPluginsInfo.find(info => info.name === plugin.name)
-    if (!pluginInfo || plugin.version === pluginInfo.version) {
+    if (!pluginInfo || plugin.package.version === pluginInfo.version) {
       return []
     }
 
     return [{
       name: plugin.name,
       source: AddSource.Registry,
-      version: plugin.version,
+      version: plugin.package.version,
       target: pluginInfo.version
     }]
   })

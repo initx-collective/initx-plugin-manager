@@ -33,14 +33,14 @@ export async function collectRepositoryUpdates(plugins: InstalledPlugins): Promi
     }
 
     const targetVersion = latestTag.tag.slice(1)
-    if (plugin.version === targetVersion) {
+    if (plugin.package.version === targetVersion) {
       continue
     }
 
     updates.push({
       name: plugin.name,
       source: AddSource.Repository,
-      version: plugin.version,
+      version: plugin.package.version,
       target: targetVersion
     })
   }

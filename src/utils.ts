@@ -1,6 +1,7 @@
 import type { PluginInfo } from './types'
-import { fetchPlugins, pluginSystem } from '@initx-plugin/core'
+import { pluginSystem } from '@initx-plugin/core'
 import { useColors } from '@initx-plugin/utils'
+import { listInstalledPlugins } from './utils/installed-plugin'
 
 const INITX_PLUGIN_REGEX = /^@initx-plugin\//
 const PLUGIN_NAME_REGEX = /^@initx-plugin\/|^initx-plugin-/
@@ -34,9 +35,9 @@ export async function getInstalledPluginNames() {
     return installedPluginInfo.names
   }
 
-  const fetchedPlugins = await fetchPlugins()
+  const installedPlugins = await listInstalledPlugins()
 
-  installedPluginInfo.names = fetchedPlugins.map(({ name }) => name)
+  installedPluginInfo.names = installedPlugins.map(({ name }) => name)
   installedPluginInfo.once = true
 
   return installedPluginInfo.names

@@ -1,4 +1,4 @@
-import type { pluginSystem } from '@initx-plugin/core'
+import type { InstalledPlugin } from '../types/installed-plugin'
 
-export type InstalledPlugins = Awaited<ReturnType<typeof pluginSystem.list>>
-export type InstalledPlugin = InstalledPlugins[number]
+export type { InstalledPlugin }
+export type InstalledPlugins = InstalledPlugin[]

@@ -1,17 +1,18 @@
 import type { PluginInfo } from './types'
-import { fetchPlugins } from '@initx-plugin/core'
 import { loadingFunction, useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import { AddSource } from './add/local'
 import { nameColor } from './utils'
+import { formatPackageAuthor, listInstalledPlugins } from './utils/installed-plugin'
 import { detectPluginSource } from './utils/plugin-source'
 
 interface DisplayPluginInfo extends PluginInfo {
+  author?: string
   source?: string
 }
 
 export async function showPluginList(cliOptions: Record<string, any> = {}) {
-  const plugins = await loadingFunction('Fetching plugins', fetchPlugins)
+  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
   const showDetail = Boolean(cliOptions.detail)
 
   const displayTable: DisplayPluginInfo[] = []
@@ -21,10 +22,13 @@ export async function showPluginList(cliOptions: Record<string, any> = {}) {
 
     displayTable.push({
       name: nameColor(plugin.name),
-      version: useColors(plugin.version).gray().toString(),
-      description: useColors(plugin.description).gray().toString(),
+      version: useColors(plugin.package.version).gray().toString(),
+      description: useColors(plugin.package.description).gray().toString(),
       ...(showDetail
-        ? { source: useColors(source ?? AddSource.Registry).gray().toString() }
+        ? {
+            author: useColors(formatPackageAuthor(plugin.package.author)).gray().toString(),
+            source: useColors(source ?? AddSource.Registry).gray().toString()
+          }
         : {})
     })
   }
