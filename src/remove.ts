@@ -1,7 +1,7 @@
 import { fetchPlugins, pluginSystem } from '@initx-plugin/core'
 import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
-import fs from 'fs-extra'
 import { communityName, nameColor, officialName } from './utils'
+import { remove } from './utils/fs'
 import { consumeLocalSource } from './utils/local-source'
 import { consumeRepositorySource } from './utils/repository-source'
 
@@ -46,7 +46,7 @@ export async function removePlugin(targetName: string) {
 
   const repositorySourceDirectory = await consumeRepositorySource(removePlugin.name)
   if (repositorySourceDirectory) {
-    await fs.remove(repositorySourceDirectory)
+    await remove(repositorySourceDirectory)
     logger.info(`Cleaned repository source directory: ${repositorySourceDirectory}`)
   }
 

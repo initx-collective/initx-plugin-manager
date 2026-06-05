@@ -1,8 +1,10 @@
+import type { PluginPackageJson } from '../types/package-json'
+import type { PluginCache } from '../types/plugin-cache'
 import { PLUGIN_DIR, pluginSystem } from '@initx-plugin/core'
 import { loadingFunction, logger } from '@initx-plugin/utils'
-import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { isInitxPlugin, nameColor } from '../utils'
+import { pathExists, pathExistsSync, readJson, readJsonSync, remove, writeJson } from '../utils/fs'
 import { consumeLocalSource, setLocalSource } from '../utils/local-source'
 import { consumeRepositorySource } from '../utils/repository-source'
 
@@ -16,20 +18,17 @@ const BACKSLASH_REGEX = /\\/g
 
 async function normalizePluginCacheAfterDirectoryInstall(directory: string, packageName: string) {
   const cachePath = resolve(PLUGIN_DIR, '.plugins.json')
-  if (!await fs.pathExists(cachePath)) {
+  if (!await pathExists(cachePath)) {
     return
   }
 
-  const cache = await fs.readJSON(cachePath) as Record<string, any>
+  const cache = await readJson<PluginCache>(cachePath)
   const pluginPackagePath = resolve(PLUGIN_DIR, 'node_modules', packageName, 'package.json')
-  if (!await fs.pathExists(pluginPackagePath)) {
+  if (!await pathExists(pluginPackagePath)) {
     return
   }
 
-  const pluginPackage = await fs.readJSON(pluginPackagePath) as {
-    version?: string
-    description?: string
-  }
+  const pluginPackage = await readJson<PluginPackageJson>(pluginPackagePath)
 
   const normalizedEntry = {
     version: pluginPackage.version || '',
@@ -57,18 +56,18 @@ async function normalizePluginCacheAfterDirectoryInstall(directory: string, pack
   }
 
   cache[packageName] = normalizedEntry
-  await fs.writeJSON(cachePath, cache)
+  await writeJson(cachePath, cache)
 }
 
 export async function addFromDirectory(directory: string, source: AddSource = AddSource.Local) {
   const packageJsonPath = resolve(directory, 'package.json')
 
-  if (!fs.existsSync(packageJsonPath)) {
+  if (!pathExistsSync(packageJsonPath)) {
     logger.error('Is not a valid plugin directory')
     return
   }
 
-  const packageJson = fs.readJSONSync(packageJsonPath)
+  const packageJson = readJsonSync<PluginPackageJson>(packageJsonPath)
 
   if (!packageJson.name || !isInitxPlugin(packageJson.name)) {
     logger.error('Is not a valid plugin name')
@@ -81,7 +80,7 @@ export async function addFromDirectory(directory: string, source: AddSource = Ad
   if (source === AddSource.Local) {
     const previousRepositoryDirectory = await consumeRepositorySource(packageJson.name)
     if (previousRepositoryDirectory) {
-      await fs.remove(previousRepositoryDirectory)
+      await remove(previousRepositoryDirectory)
     }
 
     await setLocalSource(packageJson.name, directory)

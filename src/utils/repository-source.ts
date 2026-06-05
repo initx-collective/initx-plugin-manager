@@ -1,6 +1,6 @@
 import { PLUGIN_DIR } from '@initx-plugin/core'
-import fs from 'fs-extra'
 import { resolve } from 'pathe'
+import { ensureDir, pathExists, readJson, remove, writeJson } from './fs'
 
 const REPOSITORY_SOURCE_ROOT = resolve(PLUGIN_DIR, 'repository')
 const REPOSITORY_SOURCE_MAP_PATH = resolve(REPOSITORY_SOURCE_ROOT, 'sources.json')
@@ -35,26 +35,26 @@ function safeDirectoryName(value: string) {
 }
 
 async function readRepositorySourceMap(): Promise<RepositorySourceMap> {
-  if (!await fs.pathExists(REPOSITORY_SOURCE_MAP_PATH)) {
+  if (!await pathExists(REPOSITORY_SOURCE_MAP_PATH)) {
     return {}
   }
 
-  return fs.readJSON(REPOSITORY_SOURCE_MAP_PATH)
+  return readJson<RepositorySourceMap>(REPOSITORY_SOURCE_MAP_PATH)
 }
 
 async function writeRepositorySourceMap(map: RepositorySourceMap) {
-  await fs.ensureDir(REPOSITORY_SOURCE_ROOT)
-  await fs.writeJSON(REPOSITORY_SOURCE_MAP_PATH, map, { spaces: 2 })
+  await ensureDir(REPOSITORY_SOURCE_ROOT)
+  await writeJson(REPOSITORY_SOURCE_MAP_PATH, map, { spaces: 2 })
 }
 
 export async function createRepositorySourceDirectory(gitUrl: string) {
-  await fs.ensureDir(REPOSITORY_SOURCE_ROOT)
+  await ensureDir(REPOSITORY_SOURCE_ROOT)
 
   const baseName = safeDirectoryName(normalizeRepoName(gitUrl))
   const directory = resolve(REPOSITORY_SOURCE_ROOT, baseName)
 
-  if (await fs.pathExists(directory)) {
-    await fs.remove(directory)
+  if (await pathExists(directory)) {
+    await remove(directory)
   }
 
   return directory

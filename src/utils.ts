@@ -52,9 +52,19 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
   const finedNames: string[] = []
 
   for (const name of pluginNames) {
-    const result = await pluginSystem.search(name)
+    const exact = await pluginSystem.view(name)
+
+    if (exact) {
+      if (!finedNames.includes(exact.name)) {
+        finedNames.push(exact.name)
+        plugins.push(exact)
+      }
+      continue
+    }
 
     try {
+      const result = await pluginSystem.search(name)
+
       for (const plugin of result) {
         if (finedNames.includes(plugin.name)) {
           continue
@@ -67,7 +77,7 @@ export async function searchPlugin(pluginNames: string[]): Promise<PluginInfo[]>
       }
     }
     catch {
-      return []
+      continue
     }
   }
 

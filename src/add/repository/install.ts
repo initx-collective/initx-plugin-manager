@@ -1,10 +1,11 @@
+import type { PluginPackageJson } from '../../types/package-json'
 import process from 'node:process'
 import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
-import fs from 'fs-extra'
 import { resolveCommand } from 'package-manager-detector/commands'
 import { detect } from 'package-manager-detector/detect'
 import { resolve } from 'pathe'
 import { runStageCommand } from 'stagetty'
+import { pathExistsSync, readJsonSync, remove } from '../../utils/fs'
 import { createRepositorySourceDirectory, hasRepositorySource, setRepositorySource } from '../../utils/repository-source'
 import { addFromDirectory, AddSource } from '../local'
 import { findLatestSemverTag } from './git-version'
@@ -60,7 +61,7 @@ export async function addFromRepository(gitUrl: string, cliOptions: RepositoryIn
 
     const previousSourceDir = await setRepositorySource(pluginName, sourceDir)
     if (previousSourceDir && previousSourceDir !== sourceDir) {
-      await fs.remove(previousSourceDir)
+      await remove(previousSourceDir)
     }
 
     logger.info(`Repository source directory: ${sourceDir}`)
@@ -79,19 +80,19 @@ export async function addFromRepository(gitUrl: string, cliOptions: RepositoryIn
   finally {
     const tracked = await hasRepositorySource(sourceDir)
     if (!keepSourceDir && !tracked) {
-      await fs.remove(sourceDir)
+      await remove(sourceDir)
     }
   }
 }
 
 export async function buildAndRegisterRepositoryPlugin(sourceDir: string) {
   const packageJsonPath = resolve(sourceDir, 'package.json')
-  if (!fs.existsSync(packageJsonPath)) {
+  if (!pathExistsSync(packageJsonPath)) {
     logger.error('The git repository is not a valid plugin package')
     process.exit(1)
   }
 
-  const packageJson = fs.readJSONSync(packageJsonPath)
+  const packageJson = readJsonSync<PluginPackageJson>(packageJsonPath)
   if (!packageJson.scripts?.build) {
     logger.error('The plugin package has no build script')
     process.exit(1)

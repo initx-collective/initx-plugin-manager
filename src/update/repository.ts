@@ -1,13 +1,14 @@
 import type { NeedUpdatePlugin } from '../types'
+import type { PluginPackageJson } from '../types/package-json'
 import type { InstalledPlugins } from './shared'
 import { logger } from '@initx-plugin/utils'
-import fs from 'fs-extra'
 import { resolve } from 'pathe'
 import { runStageCommand } from 'stagetty'
 import { AddSource } from '../add/local'
 import { findLatestSemverTag } from '../add/repository/git-version'
 import { buildAndRegisterRepositoryPlugin } from '../add/repository/install'
 import { nameColor } from '../utils'
+import { pathExists, readJson } from '../utils/fs'
 import { getRepositorySource } from '../utils/repository-source'
 
 export async function collectRepositoryUpdates(plugins: InstalledPlugins): Promise<NeedUpdatePlugin[]> {
@@ -79,13 +80,11 @@ export async function updateRepositoryPlugin(update: NeedUpdatePlugin) {
 
 export async function getRepositoryUrl(sourceDir: string) {
   const packageJsonPath = resolve(sourceDir, 'package.json')
-  if (!await fs.pathExists(packageJsonPath)) {
+  if (!await pathExists(packageJsonPath)) {
     return undefined
   }
 
-  const packageJson = await fs.readJSON(packageJsonPath) as {
-    repository?: string | { url?: string }
-  }
+  const packageJson = await readJson<PluginPackageJson>(packageJsonPath)
 
   if (typeof packageJson.repository === 'string') {
     return packageJson.repository

@@ -1,6 +1,6 @@
 import { PLUGIN_DIR } from '@initx-plugin/core'
-import fs from 'fs-extra'
 import { resolve } from 'pathe'
+import { ensureDir, pathExists, readJson, writeJson } from './fs'
 
 const LOCAL_SOURCE_ROOT = resolve(PLUGIN_DIR, 'local')
 const LOCAL_SOURCE_MAP_PATH = resolve(LOCAL_SOURCE_ROOT, 'sources.json')
@@ -8,16 +8,16 @@ const LOCAL_SOURCE_MAP_PATH = resolve(LOCAL_SOURCE_ROOT, 'sources.json')
 type LocalSourceMap = Record<string, string>
 
 async function readLocalSourceMap(): Promise<LocalSourceMap> {
-  if (!await fs.pathExists(LOCAL_SOURCE_MAP_PATH)) {
+  if (!await pathExists(LOCAL_SOURCE_MAP_PATH)) {
     return {}
   }
 
-  return fs.readJSON(LOCAL_SOURCE_MAP_PATH)
+  return readJson<LocalSourceMap>(LOCAL_SOURCE_MAP_PATH)
 }
 
 async function writeLocalSourceMap(map: LocalSourceMap) {
-  await fs.ensureDir(LOCAL_SOURCE_ROOT)
-  await fs.writeJSON(LOCAL_SOURCE_MAP_PATH, map, { spaces: 2 })
+  await ensureDir(LOCAL_SOURCE_ROOT)
+  await writeJson(LOCAL_SOURCE_MAP_PATH, map, { spaces: 2 })
 }
 
 export async function setLocalSource(pluginName: string, sourceDirectory: string) {
