@@ -1,5 +1,5 @@
 import type { PluginInfo } from './types'
-import { loadingFunction, useColors } from '@initx-plugin/utils'
+import { useColors } from '@initx-plugin/utils'
 import columnify from 'columnify'
 import { AddSource } from './add/local'
 import { nameColor } from './utils'
@@ -12,7 +12,7 @@ interface DisplayPluginInfo extends PluginInfo {
 }
 
 export async function showPluginList(cliOptions: Record<string, any> = {}) {
-  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
+  const plugins = await listInstalledPlugins()
   const showDetail = Boolean(cliOptions.detail)
 
   const displayTable: DisplayPluginInfo[] = []

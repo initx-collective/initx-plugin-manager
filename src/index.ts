@@ -50,7 +50,7 @@ export default class PluginManagerPlugin extends InitxPlugin {
       }
 
       case 'remove': {
-        await removePlugin(name)
+        await removePlugin(name, context.cliOptions)
         break
       }
 

@@ -1,6 +1,5 @@
 import type { NeedUpdatePlugin } from '../types'
 import type { InstalledPlugins } from './shared'
-import { loadingFunction } from '@initx-plugin/utils'
 import { AddSource } from '../add/local'
 import { searchPlugin } from '../utils'
 import { detectPluginSource } from '../utils/plugin-source'
@@ -22,10 +21,7 @@ export async function collectNeedUpdatePlugins(plugins: InstalledPlugins) {
     .filter(({ source }) => source === AddSource.Repository)
     .map(({ plugin }) => plugin)
 
-  const repositoryUpdates = await loadingFunction(
-    'Checking repository plugins',
-    () => collectRepositoryUpdates(repositoryPlugins)
-  )
+  const repositoryUpdates = await collectRepositoryUpdates(repositoryPlugins)
 
   return [
     ...registryUpdates,
@@ -50,7 +46,7 @@ async function collectRegistryUpdates(plugins: InstalledPlugins): Promise<NeedUp
   }
 
   const pluginNames = plugins.map(plugin => plugin.name)
-  const searchPluginsInfo = await loadingFunction('Checking registry plugins', () => searchPlugin(pluginNames))
+  const searchPluginsInfo = await searchPlugin(pluginNames)
 
   return plugins.flatMap((plugin) => {
     const pluginInfo = searchPluginsInfo.find(info => info.name === plugin.name)

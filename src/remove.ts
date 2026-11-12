@@ -1,13 +1,13 @@
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
-import { communityName, nameColor, officialName } from './utils'
+import { inquirer, logger } from '@initx-plugin/utils'
+import { communityName, isYes, nameColor, officialName } from './utils'
 import { remove } from './utils/fs'
 import { listInstalledPlugins } from './utils/installed-plugin'
 import { consumeLocalSource } from './utils/local-source'
 import { consumeRepositorySource } from './utils/repository-source'
 
-export async function removePlugin(targetName: string) {
-  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
+export async function removePlugin(targetName: string, cliOptions: Record<string, any> = {}) {
+  const plugins = await listInstalledPlugins()
 
   const removePluginNames = [
     officialName(targetName),
@@ -26,13 +26,15 @@ export async function removePlugin(targetName: string) {
   let needConfirm = true
 
   if (removePlugins.length === 2) {
-    index = await inquirer.select('Which plugin do you want to remove?', removePlugins.map(({ name }) => nameColor(name)))
+    if (!isYes(cliOptions)) {
+      index = await inquirer.select('Which plugin do you want to remove?', removePlugins.map(({ name }) => nameColor(name)))
+    }
     needConfirm = false
   }
 
   const removePlugin = removePlugins[index]
 
-  if (needConfirm) {
+  if (needConfirm && !isYes(cliOptions)) {
     const confirmResult = await inquirer.confirm(`Are you sure you want to remove ${nameColor(removePlugin.name)}?`)
 
     if (!confirmResult) {
@@ -40,10 +42,7 @@ export async function removePlugin(targetName: string) {
     }
   }
 
-  await loadingFunction(
-    `Removing ${nameColor(removePlugin.name)}...`,
-    () => pluginSystem.uninstall(removePlugin.name)
-  )
+  await pluginSystem.uninstall(removePlugin.name)
 
   const repositorySourceDirectory = await consumeRepositorySource(removePlugin.name)
   if (repositorySourceDirectory) {

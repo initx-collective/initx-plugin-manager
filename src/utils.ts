@@ -30,6 +30,10 @@ export function nameColor(name: string) {
   return useColors(name).blue().toString()
 }
 
+export function isYes(cliOptions: Record<string, any> = {}) {
+  return Boolean(cliOptions.y || cliOptions.yes)
+}
+
 export async function getInstalledPluginNames() {
   if (installedPluginInfo.once) {
     return installedPluginInfo.names

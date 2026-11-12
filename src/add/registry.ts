@@ -1,13 +1,13 @@
 import type { PluginInfo } from '../types'
 import process from 'node:process'
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
-import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, nameColor, officialName, searchPlugin } from '../utils'
+import { inquirer, logger, useColors } from '@initx-plugin/utils'
+import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, isYes, nameColor, officialName, searchPlugin } from '../utils'
 
 export async function addFromRegistry(targetPlugin: string, cliOptions: Record<string, any> = {}) {
   if (cliOptions.raw) {
     try {
-      await loadingFunction('Installing plugin', () => installPlugin(targetPlugin))
+      await installPlugin(targetPlugin)
       logger.success(`Plugin ${nameColor(targetPlugin)} installed`)
     }
     catch (error) {
@@ -19,7 +19,7 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
     return
   }
 
-  const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
+  const availablePlugins = await searchAvailablePlugins(targetPlugin)
 
   if (availablePlugins.length === 0) {
     logger.error(`Plugin ${nameColor(officialName(targetPlugin))} or ${nameColor(communityName(targetPlugin))} not found`)
@@ -30,16 +30,18 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
   let needConfirm = true
 
   if (availablePlugins.length === 2) {
-    const displayContnet: string[] = []
+    if (!isYes(cliOptions)) {
+      const displayContnet: string[] = []
 
-    for (const plugin of availablePlugins) {
-      displayContnet.push(await displayInfo(plugin, true))
+      for (const plugin of availablePlugins) {
+        displayContnet.push(await displayInfo(plugin, true))
+      }
+
+      index = await inquirer.select(
+        'Which plugin do you want to install?',
+        displayContnet
+      )
     }
-
-    index = await inquirer.select(
-      'Which plugin do you want to install?',
-      displayContnet
-    )
 
     needConfirm = false
   }
@@ -50,7 +52,7 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
     description: availablePlugins[index].description
   }
 
-  if (needConfirm) {
+  if (needConfirm && !isYes(cliOptions)) {
     const confirm = await inquirer.confirm(
       `Do you want to install ${await displayInfo(pluginInfo)} ?`
     )
@@ -62,7 +64,7 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
   }
 
   try {
-    await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
+    await installPlugin(pluginInfo.name)
   }
   catch {
     logger.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)

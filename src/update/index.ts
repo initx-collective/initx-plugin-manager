@@ -1,16 +1,16 @@
 import type { InitxContext } from '@initx-plugin/core'
-import { loadingFunction, logger, useColors } from '@initx-plugin/utils'
+import { logger, useColors } from '@initx-plugin/utils'
 import { checkbox } from '@inquirer/prompts'
-import { nameColor } from '../utils'
+import { isYes, nameColor } from '../utils'
 import { listInstalledPlugins } from '../utils/installed-plugin'
 import { applyPluginUpdates } from './apply'
 import { collectNeedUpdatePlugins, getLocalPluginNames } from './collect'
 import { updateCorePackages } from './core'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
-  await loadingFunction('Updating core packages', updateCorePackages)
+  await updateCorePackages()
 
-  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
+  const plugins = await listInstalledPlugins()
   const needUpdatePlugins = await collectNeedUpdatePlugins(plugins)
   const localPluginNames = await getLocalPluginNames(plugins)
 
@@ -31,7 +31,7 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
     logger.info(`Skipped local plugins: ${localPluginNames.map(nameColor).join(' ')}`)
   }
 
-  const selectedUpdates = await selectUpdates(needUpdatePlugins)
+  const selectedUpdates = await selectUpdates(needUpdatePlugins, options)
   if (selectedUpdates.length === 0) {
     logger.warn('Update canceled')
     return
@@ -43,7 +43,14 @@ export async function updatePlugin(options: InitxContext['cliOptions']) {
   logger.success(`Plugins updated: ${displayNames}`)
 }
 
-async function selectUpdates(needUpdatePlugins: Awaited<ReturnType<typeof collectNeedUpdatePlugins>>) {
+async function selectUpdates(
+  needUpdatePlugins: Awaited<ReturnType<typeof collectNeedUpdatePlugins>>,
+  options: InitxContext['cliOptions']
+) {
+  if (isYes(options)) {
+    return needUpdatePlugins
+  }
+
   const selectedNames = await checkbox({
     message: 'Select plugins to update',
     choices: needUpdatePlugins.map(({ name, source, version, target }) => ({
