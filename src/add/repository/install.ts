@@ -1,6 +1,6 @@
 import type { PluginPackageJson } from '../../types/package-json'
 import process from 'node:process'
-import { inquirer, logger } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
 import { resolveCommand } from 'package-manager-detector/commands'
 import { detect } from 'package-manager-detector/detect'
 import { resolve } from 'pathe'
@@ -20,7 +20,10 @@ interface RepositoryInstallOptions {
 }
 
 export async function addFromRepository(gitUrl: string, cliOptions: RepositoryInstallOptions = {}) {
-  const sourceDir = await createRepositorySourceDirectory(gitUrl)
+  const sourceDir = await loadingFunction(
+    'Preparing repository workspace',
+    () => createRepositorySourceDirectory(gitUrl)
+  )
   let keepSourceDir = false
 
   try {
@@ -98,7 +101,10 @@ export async function buildAndRegisterRepositoryPlugin(sourceDir: string) {
     process.exit(1)
   }
 
-  const detectedPm = await detect({ cwd: sourceDir })
+  const detectedPm = await loadingFunction(
+    'Detecting package manager',
+    () => detect({ cwd: sourceDir })
+  )
   if (!detectedPm) {
     logger.error('Could not detect package manager in the plugin repository')
     process.exit(1)
@@ -172,7 +178,10 @@ async function resolveCheckoutTarget(gitUrl: string, cliOptions: RepositoryInsta
     }
   }
 
-  const latestTag = await findLatestSemverTag(gitUrl)
+  const latestTag = await loadingFunction(
+    'Resolving repository version',
+    () => findLatestSemverTag(gitUrl)
+  )
 
   if (!latestTag) {
     return undefined

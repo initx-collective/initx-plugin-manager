@@ -1,6 +1,6 @@
 import type { PluginPackageJson } from '../types/package-json'
 import { pluginSystem } from '@initx-plugin/core'
-import { logger } from '@initx-plugin/utils'
+import { loadingFunction, logger } from '@initx-plugin/utils'
 import { resolve } from 'pathe'
 import { isInitxPlugin, nameColor } from '../utils'
 import { pathExistsSync, readJsonSync, remove } from '../utils/fs'
@@ -28,7 +28,7 @@ export async function addFromDirectory(directory: string, source: AddSource = Ad
     return undefined
   }
 
-  await pluginSystem.install(directory)
+  await loadingFunction('Installing plugin', () => pluginSystem.install(directory))
 
   if (source === AddSource.Local) {
     const previousRepositoryDirectory = await consumeRepositorySource(packageJson.name)

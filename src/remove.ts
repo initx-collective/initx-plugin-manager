@@ -1,5 +1,5 @@
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, logger } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger } from '@initx-plugin/utils'
 import { communityName, isYes, nameColor, officialName } from './utils'
 import { remove } from './utils/fs'
 import { listInstalledPlugins } from './utils/installed-plugin'
@@ -7,7 +7,7 @@ import { consumeLocalSource } from './utils/local-source'
 import { consumeRepositorySource } from './utils/repository-source'
 
 export async function removePlugin(targetName: string, cliOptions: Record<string, any> = {}) {
-  const plugins = await listInstalledPlugins()
+  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
 
   const removePluginNames = [
     officialName(targetName),
@@ -42,7 +42,10 @@ export async function removePlugin(targetName: string, cliOptions: Record<string
     }
   }
 
-  await pluginSystem.uninstall(removePlugin.name)
+  await loadingFunction(
+    `Removing ${nameColor(removePlugin.name)}...`,
+    () => pluginSystem.uninstall(removePlugin.name)
+  )
 
   const repositorySourceDirectory = await consumeRepositorySource(removePlugin.name)
   if (repositorySourceDirectory) {

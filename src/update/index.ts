@@ -1,5 +1,5 @@
 import type { InitxContext } from '@initx-plugin/core'
-import { logger, useColors } from '@initx-plugin/utils'
+import { loadingFunction, logger, useColors } from '@initx-plugin/utils'
 import { checkbox } from '@inquirer/prompts'
 import { isYes, nameColor } from '../utils'
 import { listInstalledPlugins } from '../utils/installed-plugin'
@@ -8,9 +8,9 @@ import { collectNeedUpdatePlugins, getLocalPluginNames } from './collect'
 import { updateCorePackages } from './core'
 
 export async function updatePlugin(options: InitxContext['cliOptions']) {
-  await updateCorePackages()
+  await loadingFunction('Updating core packages', updateCorePackages)
 
-  const plugins = await listInstalledPlugins()
+  const plugins = await loadingFunction('Fetching plugins', listInstalledPlugins)
   const needUpdatePlugins = await collectNeedUpdatePlugins(plugins)
   const localPluginNames = await getLocalPluginNames(plugins)
 

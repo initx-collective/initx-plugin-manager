@@ -1,13 +1,13 @@
 import type { PluginInfo } from '../types'
 import process from 'node:process'
 import { pluginSystem } from '@initx-plugin/core'
-import { inquirer, logger, useColors } from '@initx-plugin/utils'
+import { inquirer, loadingFunction, logger, useColors } from '@initx-plugin/utils'
 import { communityName, isCompleteMatchName, isInitxPlugin, isInstalledPlugin, isYes, nameColor, officialName, searchPlugin } from '../utils'
 
 export async function addFromRegistry(targetPlugin: string, cliOptions: Record<string, any> = {}) {
   if (cliOptions.raw) {
     try {
-      await installPlugin(targetPlugin)
+      await loadingFunction('Installing plugin', () => installPlugin(targetPlugin))
       logger.success(`Plugin ${nameColor(targetPlugin)} installed`)
     }
     catch (error) {
@@ -19,7 +19,7 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
     return
   }
 
-  const availablePlugins = await searchAvailablePlugins(targetPlugin)
+  const availablePlugins = await loadingFunction('Searching plugin', () => searchAvailablePlugins(targetPlugin))
 
   if (availablePlugins.length === 0) {
     logger.error(`Plugin ${nameColor(officialName(targetPlugin))} or ${nameColor(communityName(targetPlugin))} not found`)
@@ -64,7 +64,7 @@ export async function addFromRegistry(targetPlugin: string, cliOptions: Record<s
   }
 
   try {
-    await installPlugin(pluginInfo.name)
+    await loadingFunction('Installing plugin', () => installPlugin(pluginInfo.name))
   }
   catch {
     logger.error(`Failed to install plugin ${nameColor(pluginInfo.name)}`)

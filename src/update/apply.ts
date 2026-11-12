@@ -1,6 +1,6 @@
 import type { NeedUpdatePlugin } from '../types'
 import { pluginSystem } from '@initx-plugin/core'
-import { logger } from '@initx-plugin/utils'
+import { loadingFunction, logger } from '@initx-plugin/utils'
 import { AddSource } from '../add/local'
 import { getRepositorySource } from '../utils/repository-source'
 import { getMissingRepositoryUpdateMessage, updateRepositoryPlugin } from './repository'
@@ -8,7 +8,10 @@ import { getMissingRepositoryUpdateMessage, updateRepositoryPlugin } from './rep
 export async function applyPluginUpdates(updates: NeedUpdatePlugin[]) {
   for (const update of updates) {
     if (update.source === AddSource.Registry) {
-      await pluginSystem.update(update.name, update.target)
+      await loadingFunction(
+        `Updating ${update.name} from registry`,
+        () => pluginSystem.update(update.name, update.target)
+      )
       continue
     }
 
